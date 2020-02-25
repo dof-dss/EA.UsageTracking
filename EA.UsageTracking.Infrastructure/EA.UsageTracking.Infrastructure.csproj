@@ -1,0 +1,47 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+  <Sdk Name="Microsoft.Build.CentralPackageVersions" Version="2.0.46" />
+  
+  <PropertyGroup>
+    <TargetFramework>netcoreapp3.1</TargetFramework>
+  </PropertyGroup>
+  
+  <ItemGroup>
+    <Compile Remove="Migrations\20200217151218_init.cs" />
+    <Compile Remove="Migrations\20200217151218_init.Designer.cs" />
+    <Compile Remove="Migrations\20200217153420_init.cs" />
+    <Compile Remove="Migrations\20200217153420_init.Designer.cs" />
+    <Compile Remove="Migrations\20200219154015_init.cs" />
+    <Compile Remove="Migrations\20200219154015_init.Designer.cs" />
+    <Compile Remove="Migrations\20200219154233_init.cs" />
+    <Compile Remove="Migrations\20200219154233_init.Designer.cs" />
+    <Compile Remove="Migrations\20200221130058_AddUsersAndEvents.cs" />
+    <Compile Remove="Migrations\20200221130058_AddUsersAndEvents.Designer.cs" />
+    <Compile Remove="Migrations\20200225114540_IsComplete.cs" />
+    <Compile Remove="Migrations\20200225114540_IsComplete.Designer.cs" />
+    <Compile Remove="Migrations\20200225120502_iscomplete.cs" />
+    <Compile Remove="Migrations\20200225120502_iscomplete.Designer.cs" />
+    <Compile Remove="Migrations\20200225124506_IsComplete.cs" />
+    <Compile Remove="Migrations\20200225124506_IsComplete.Designer.cs" />
+    <Compile Remove="Migrations\20200225124619_IsComplete.cs" />
+    <Compile Remove="Migrations\20200225124619_IsComplete.Designer.cs" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Autofac" Version="5.1.2" />
+    <PackageReference Include="Autofac.Extensions.DependencyInjection" Version="6.0.0" />
+    <PackageReference Include="Ardalis.EFCore.Extensions" Version="1.1.0" />
+    <PackageReference Include="MediatR" Version="8.0.0" />
+    <PackageReference Include="Microsoft.EntityFrameworkCore.Tools" Version="3.1.2">
+      <PrivateAssets>all</PrivateAssets>
+      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+    </PackageReference>
+    <PackageReference Include="Pomelo.EntityFrameworkCore.MySql" Version="3.1.1" />
+    <PackageReference Include="SQLite" Version="3.13.0" />
+    <PackageReference Include="NETStandard.Library" Version="2.0.3" />
+  </ItemGroup>
+  
+  <ItemGroup>
+    <ProjectReference Include="..\EA.UsageTracking.Core\EA.UsageTracking.Core.csproj" />
+    <ProjectReference Include="..\EA.UsageTracking.SharedKernel\EA.UsageTracking.SharedKernel.csproj" />
+  </ItemGroup>
+</Project>

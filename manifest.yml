@@ -1,0 +1,8 @@
+---
+applications:
+- name: ea-usage-tracking
+  buildpacks:
+  - dotnet_core_buildpack
+  memory: 256M
+  services:
+  - usage-tracking
