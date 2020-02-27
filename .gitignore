@@ -256,4 +256,4 @@ paket-files/
 *.sln.iml
 *.sqlite
 
-appsettings.*
+EA.UsageTracking.API/appsettings.json
