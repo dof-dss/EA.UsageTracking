@@ -32,6 +32,10 @@ namespace EA.UsageTracking.Infrastructure.Migrations
                     b.Property<string>("Name")
                         .HasColumnType("longtext CHARACTER SET utf8mb4");
 
+                    b.Property<Guid>("_tenantId")
+                        .HasColumnName("TenantId")
+                        .HasColumnType("char(36)");
+
                     b.HasKey("Id");
 
                     b.ToTable("Applications");
@@ -54,6 +58,10 @@ namespace EA.UsageTracking.Infrastructure.Migrations
 
                     b.Property<string>("Name")
                         .HasColumnType("longtext CHARACTER SET utf8mb4");
+
+                    b.Property<Guid>("_tenantId")
+                        .HasColumnName("TenantId")
+                        .HasColumnType("char(36)");
 
                     b.HasKey("Id");
 
@@ -82,6 +90,10 @@ namespace EA.UsageTracking.Infrastructure.Migrations
 
                     b.Property<string>("Name")
                         .HasColumnType("longtext CHARACTER SET utf8mb4");
+
+                    b.Property<Guid>("_tenantId")
+                        .HasColumnName("TenantId")
+                        .HasColumnType("char(36)");
 
                     b.HasKey("Id");
 
@@ -113,6 +125,10 @@ namespace EA.UsageTracking.Infrastructure.Migrations
 
                     b.Property<bool>("IsComplete")
                         .HasColumnType("tinyint(1)");
+
+                    b.Property<Guid>("_tenantId")
+                        .HasColumnName("TenantId")
+                        .HasColumnType("char(36)");
 
                     b.HasKey("Id");
 

@@ -24,6 +24,10 @@
     <Compile Remove="Migrations\20200225124506_IsComplete.Designer.cs" />
     <Compile Remove="Migrations\20200225124619_IsComplete.cs" />
     <Compile Remove="Migrations\20200225124619_IsComplete.Designer.cs" />
+    <Compile Remove="Migrations\20200225124738_init.cs" />
+    <Compile Remove="Migrations\20200225124738_init.Designer.cs" />
+    <Compile Remove="Migrations\20200226113522_multi-tenant.cs" />
+    <Compile Remove="Migrations\20200226113522_multi-tenant.Designer.cs" />
   </ItemGroup>
 
   <ItemGroup>
@@ -31,6 +35,7 @@
     <PackageReference Include="Autofac.Extensions.DependencyInjection" Version="6.0.0" />
     <PackageReference Include="Ardalis.EFCore.Extensions" Version="1.1.0" />
     <PackageReference Include="MediatR" Version="8.0.0" />
+    <PackageReference Include="Microsoft.AspNetCore.Http.Features" Version="3.1.2" />
     <PackageReference Include="Microsoft.EntityFrameworkCore.Tools" Version="3.1.2">
       <PrivateAssets>all</PrivateAssets>
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
@@ -43,5 +48,11 @@
   <ItemGroup>
     <ProjectReference Include="..\EA.UsageTracking.Core\EA.UsageTracking.Core.csproj" />
     <ProjectReference Include="..\EA.UsageTracking.SharedKernel\EA.UsageTracking.SharedKernel.csproj" />
+  </ItemGroup>
+  
+  <ItemGroup>
+    <Reference Include="Microsoft.AspNetCore.Http.Abstractions">
+      <HintPath>..\..\..\..\..\..\Program Files\dotnet\packs\Microsoft.AspNetCore.App.Ref\3.1.0\ref\netcoreapp3.1\Microsoft.AspNetCore.Http.Abstractions.dll</HintPath>
+    </Reference>
   </ItemGroup>
 </Project>

@@ -15,7 +15,6 @@ namespace EA.UsageTracking.Infrastructure.Queries
 
     public class GetUsagesForApplicationQuery : IRequest<Result<List<UsageItemDTO>>>
     {
-        public int ApplicationId { get; set; }
         public int PageNumber { get; set; } = 1;
         public int PageSize { get; set; } = 100;
     }
@@ -24,9 +23,9 @@ namespace EA.UsageTracking.Infrastructure.Queries
     {
         private readonly UsageTrackingContext _dbContext;
 
-        public GetUsagesForApplicationQueryHandler(UsageTrackingContext dbContext)
+        public GetUsagesForApplicationQueryHandler(IUsageTrackingContextFactory dbContextFactory)
         {
-            _dbContext = dbContext;
+            _dbContext = dbContextFactory.UsageTrackingContext;
         }
 
         protected override Result<List<UsageItemDTO>> Handle(GetUsagesForApplicationQuery message)
@@ -41,8 +40,7 @@ namespace EA.UsageTracking.Infrastructure.Queries
                 .Include(u => u.ApplicationUser)
                 .OrderBy(u => u.Id).ThenBy(y => y.ApplicationUser.Id)
                 .Skip((message.PageNumber - 1) * message.PageSize)
-                .Take(message.PageSize)
-                .Where(i => i.Application.Id == message.ApplicationId);
+                .Take(message.PageSize);
 
             return Result.Ok(results.Select(i => UsageItemDTO.FromUsageItem(i)).ToList());
         }

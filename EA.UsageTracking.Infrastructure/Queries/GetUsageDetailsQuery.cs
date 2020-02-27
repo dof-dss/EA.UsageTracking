@@ -25,9 +25,9 @@ namespace EA.UsageTracking.Core.Queries
     {
         private readonly UsageTrackingContext _dbContext;
 
-        public GetUsageDetailsQueryHandler(UsageTrackingContext dbContext)
+        public GetUsageDetailsQueryHandler(IUsageTrackingContextFactory dbContextFactory)
         {
-            _dbContext = dbContext;
+            _dbContext = dbContextFactory.UsageTrackingContext;
         }
 
         public async Task<Result<UsageItemDTO>> Handle(GetUsageDetailsQuery request, CancellationToken cancellationToken)

@@ -11,10 +11,19 @@ namespace EA.UsageTracking.Infrastructure.Data
 {
     public class UsageTrackingContext : DbContext
     {
+        private readonly Guid _tenantId;
+
+        public UsageTrackingContext(DbContextOptions<UsageTrackingContext> options, Guid tenantId)
+            : base(options)
+        {
+            _tenantId = tenantId;
+        }
 
         public UsageTrackingContext(DbContextOptions<UsageTrackingContext> options)
             : base(options)
-        {}
+        {
+
+        }
 
         public DbSet<Application> Applications { get; set; }
         public DbSet<ApplicationUser> ApplicationUsers { get; set; }
@@ -24,6 +33,18 @@ namespace EA.UsageTracking.Infrastructure.Data
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
+            modelBuilder.Entity<Application>().Property<Guid>("_tenantId").HasColumnName("TenantId");
+            modelBuilder.Entity<Application>().HasQueryFilter(b => EF.Property<Guid>(b, "_tenantId") == _tenantId);
+
+            modelBuilder.Entity<ApplicationUser>().Property<Guid>("_tenantId").HasColumnName("TenantId");
+            modelBuilder.Entity<ApplicationUser>().HasQueryFilter(b => EF.Property<Guid>(b, "_tenantId") == _tenantId);
+
+            modelBuilder.Entity<ApplicationEvent>().Property<Guid>("_tenantId").HasColumnName("TenantId");
+            modelBuilder.Entity<ApplicationEvent>().HasQueryFilter(b => EF.Property<Guid>(b, "_tenantId") == _tenantId);
+
+            modelBuilder.Entity<UsageItem>().Property<Guid>("_tenantId").HasColumnName("TenantId");
+            modelBuilder.Entity<UsageItem>().HasQueryFilter(b => EF.Property<Guid>(b, "_tenantId") == _tenantId);
+
             base.OnModelCreating(modelBuilder);
 
             modelBuilder.ApplyAllConfigurationsFromCurrentAssembly();
@@ -41,10 +62,12 @@ namespace EA.UsageTracking.Infrastructure.Data
             {
                 ((BaseEntity)entityEntry.Entity).DateModified = DateTime.Now;
 
-                if (entityEntry.State == EntityState.Added)
-                {
-                    ((BaseEntity)entityEntry.Entity).DateCreated = DateTime.Now;
-                }
+                if (entityEntry.State != EntityState.Added) continue;
+
+                ((BaseEntity)entityEntry.Entity).DateCreated = DateTime.Now;
+
+                if (entityEntry.Metadata.GetProperties().Any(p => p.Name == "_tenantId"))
+                    entityEntry.CurrentValues["_tenantId"] = _tenantId;
             }
             return await base.SaveChangesAsync(cancellationToken);
         }

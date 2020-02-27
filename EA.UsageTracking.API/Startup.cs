@@ -11,7 +11,10 @@ using Microsoft.Extensions.Hosting;
 using Microsoft.OpenApi.Models;
 using Steeltoe.CloudFoundry.Connector.MySql.EFCore;
 using Ardalis.ListStartupServices;
+using EA.UsageTracking.API.ActionFilters;
+using Microsoft.AspNetCore.Http;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.DependencyInjection.Extensions;
 
 namespace EA.UsageTracking.API
 {
@@ -29,20 +32,40 @@ namespace EA.UsageTracking.API
         {
             services.AddControllers();
 
+            ConfigureUsageTrackingContext(services);
+            ConfigureSwagger(services);
+            ConfigureServiceDescription(services);
+
+            return ContainerSetup.InitializeWeb(Assembly.GetExecutingAssembly(), services);
+        }
+
+        private void ConfigureUsageTrackingContext(IServiceCollection services)
+        {
             services.AddDbContext<UsageTrackingContext>(options => options.UseMySql(Configuration));
 
-            services.AddSwaggerGen(c => c.SwaggerDoc("v1", new OpenApiInfo { Title = "Usage Tracking API", Version = "v1" }));
+            services.AddSingleton<IHttpContextAccessor, HttpContextAccessor>();
+            services.TryAddSingleton(sp =>
+            {
+                var builder = new DbContextOptionsBuilder<UsageTrackingContext>();
+                return builder.UseMySql(Configuration).Options;
+            });
+        }
+        private void ConfigureSwagger(IServiceCollection services)
+        {
+            services.AddSwaggerGen(c =>
+            {
+                c.SwaggerDoc("v1", new OpenApiInfo { Title = "Usage Tracking API", Version = "v1" });
+                c.OperationFilter<TenantHeaderFilter>();
+            });
+        }
 
-            // add list services for diagnostic purposes - see https://github.com/ardalis/AspNetCoreStartupServices
+        private void ConfigureServiceDescription(IServiceCollection services)
+        {
             services.Configure<ServiceConfig>(config =>
             {
                 config.Services = new List<ServiceDescriptor>(services);
-
-                // optional - default path to view services is /listallservices - recommended to choose your own path
                 config.Path = "/listservices";
             });
-
-            return ContainerSetup.InitializeWeb(Assembly.GetExecutingAssembly(), services);
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
@@ -67,10 +90,8 @@ namespace EA.UsageTracking.API
 
             app.UseAuthorization();
 
-            // Enable middleware to serve generated Swagger as a JSON endpoint.
-            app.UseSwagger();
 
-            // Enable middleware to serve swagger-ui (HTML, JS, CSS, etc.), specifying the Swagger JSON endpoint.
+            app.UseSwagger();
             app.UseSwaggerUI(c =>
             {
                 c.SwaggerEndpoint("/swagger/v1/swagger.json", "Usage Tracking API V1");

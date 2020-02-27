@@ -30,6 +30,7 @@ namespace EA.UsageTracking.Infrastructure
             var sharedKernelAssembly = Assembly.GetAssembly(typeof(BaseEntity));
 
             builder.RegisterType<Mediator>().As<IMediator>().InstancePerLifetimeScope();
+            builder.RegisterType<UsageTrackingContextFactory>().As<IUsageTrackingContextFactory>();
 
             builder.Register<ServiceFactory>(context =>
             {

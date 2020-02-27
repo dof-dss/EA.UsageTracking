@@ -7,6 +7,7 @@ using System.Threading.Tasks;
 using EA.UsageTracking.API;
 using EA.UsageTracking.Core.DTOs;
 using EA.UsageTracking.Core.Entities;
+using EA.UsageTracking.SharedKernel.Constants;
 using Newtonsoft.Json;
 using NUnit.Framework;
 using NUnit.Framework.Internal;
@@ -21,13 +22,14 @@ namespace EA.UsageTracking.Tests.Functional
         public UsageItemsControllerShouldBeAbleTo()
         {
             _client = new CustomWebApplicationFactory<Startup>().CreateClient();
+            _client.DefaultRequestHeaders.Add(Constants.Tenant.TenantId, "b0ed668d-7ef2-4a23-a333-94ad278f45d7");
         }
 
         [Test]
         public async Task GetAllForApplication()
         {
             //Act
-            var response = await _client.GetAsync("/api/usageItems/application/1/1/100");
+            var response = await _client.GetAsync("/api/usageItems?PageNumber=1&PageSize=100");
             response.EnsureSuccessStatusCode();
             var stringResponse = await response.Content.ReadAsStringAsync();
             var result = JsonConvert.DeserializeObject<IEnumerable<UsageItemDTO>>(stringResponse).ToList();
@@ -40,7 +42,7 @@ namespace EA.UsageTracking.Tests.Functional
         public async Task GetById()
         {
             //Act
-            var response = await _client.GetAsync("/api/usageItems/1");
+            var response = await _client.GetAsync("/api/usageItems/details?id=1");
             response.EnsureSuccessStatusCode();
             var stringResponse = await response.Content.ReadAsStringAsync();
             var result = JsonConvert.DeserializeObject<UsageItemDTO>(stringResponse);

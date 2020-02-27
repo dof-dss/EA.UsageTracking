@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Reflection;
 using System.Text;
 using EA.UsageTracking.Infrastructure.Data;
 using EA.UsageTracking.SharedKernel;
@@ -30,5 +31,14 @@ namespace EA.UsageTracking.Tests
 
             return builder.Options;
         }
+
+        internal static object GetInstanceField(Type type, object instance, string fieldName)
+        {
+            BindingFlags bindFlags = BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic
+                                     | BindingFlags.Static;
+            FieldInfo field = type.GetField(fieldName, bindFlags);
+            return field.GetValue(instance);
+        }
+
     }
 }

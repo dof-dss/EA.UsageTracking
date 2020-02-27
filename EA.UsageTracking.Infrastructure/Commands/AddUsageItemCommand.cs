@@ -25,9 +25,9 @@ namespace EA.UsageTracking.Infrastructure.Commands
     {
         private readonly UsageTrackingContext _dbContext;
 
-        public AddUsageItemCommandHandler(UsageTrackingContext dbContext)
+        public AddUsageItemCommandHandler(IUsageTrackingContextFactory dbContextFactory)
         {
-            _dbContext = dbContext;
+            _dbContext = dbContextFactory.UsageTrackingContext;
         }
 
         public async Task<Result<UsageItemDTO>> Handle(AddUsageItemCommand request, CancellationToken cancellationToken)

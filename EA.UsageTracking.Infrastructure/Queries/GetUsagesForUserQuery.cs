@@ -25,9 +25,9 @@ namespace EA.UsageTracking.Infrastructure.Queries
     {
         private readonly UsageTrackingContext _dbContext;
 
-        public GetUsagesForUserQueryHandler(UsageTrackingContext dbContext)
+        public GetUsagesForUserQueryHandler(IUsageTrackingContextFactory dbContextFactory)
         {
-            _dbContext = dbContext;
+            _dbContext = dbContextFactory.UsageTrackingContext;
         }
 
         protected override Result<List<UsageItemDTO>> Handle(GetUsagesForUserQuery message)

@@ -9,7 +9,7 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace EA.UsageTracking.Infrastructure.Migrations
 {
     [DbContext(typeof(UsageTrackingContext))]
-    [Migration("20200225124738_init")]
+    [Migration("20200226135225_init")]
     partial class init
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -34,6 +34,10 @@ namespace EA.UsageTracking.Infrastructure.Migrations
                     b.Property<string>("Name")
                         .HasColumnType("longtext CHARACTER SET utf8mb4");
 
+                    b.Property<Guid>("_tenantId")
+                        .HasColumnName("TenantId")
+                        .HasColumnType("char(36)");
+
                     b.HasKey("Id");
 
                     b.ToTable("Applications");
@@ -56,6 +60,10 @@ namespace EA.UsageTracking.Infrastructure.Migrations
 
                     b.Property<string>("Name")
                         .HasColumnType("longtext CHARACTER SET utf8mb4");
+
+                    b.Property<Guid>("_tenantId")
+                        .HasColumnName("TenantId")
+                        .HasColumnType("char(36)");
 
                     b.HasKey("Id");
 
@@ -84,6 +92,10 @@ namespace EA.UsageTracking.Infrastructure.Migrations
 
                     b.Property<string>("Name")
                         .HasColumnType("longtext CHARACTER SET utf8mb4");
+
+                    b.Property<Guid>("_tenantId")
+                        .HasColumnName("TenantId")
+                        .HasColumnType("char(36)");
 
                     b.HasKey("Id");
 
@@ -115,6 +127,10 @@ namespace EA.UsageTracking.Infrastructure.Migrations
 
                     b.Property<bool>("IsComplete")
                         .HasColumnType("tinyint(1)");
+
+                    b.Property<Guid>("_tenantId")
+                        .HasColumnName("TenantId")
+                        .HasColumnType("char(36)");
 
                     b.HasKey("Id");
 

@@ -19,19 +19,19 @@ namespace EA.UsageTracking.API.Controllers
         private readonly UsageTrackingContext _usageTrackingContext;
         private readonly IMediator _mediator;
 
-        public UsageItemsController(UsageTrackingContext usageTrackingContext, IMediator mediator)
+        public UsageItemsController(IUsageTrackingContextFactory usageTrackingContextFactory, IMediator mediator)
         {
-            _usageTrackingContext = usageTrackingContext;
+            _usageTrackingContext = usageTrackingContextFactory.UsageTrackingContext;
             _mediator = mediator;
         }
 
-        [HttpGet("Application")]
+        [HttpGet]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         public async Task<IActionResult> GetAllForApplication([FromQuery] GetUsagesForApplicationQuery getUsagesForApplicationQuery) =>
             (await _mediator.Send(getUsagesForApplicationQuery)).OnBoth(r => r.IsSuccess ? (IActionResult)Ok(r.Value) : BadRequest(r.Error));
 
-        [HttpGet]
+        [HttpGet("Details")]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         public async Task<IActionResult> GetById([FromQuery] GetUsageDetailsQuery getUsageDetailsQuery) => 

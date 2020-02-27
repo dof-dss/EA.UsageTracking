@@ -16,7 +16,8 @@ namespace EA.UsageTracking.Infrastructure.Migrations
                         .Annotation("MySql:ValueGenerationStrategy", MySqlValueGenerationStrategy.IdentityColumn),
                     DateCreated = table.Column<DateTime>(nullable: false),
                     DateModified = table.Column<DateTime>(nullable: false),
-                    Name = table.Column<string>(nullable: true)
+                    Name = table.Column<string>(nullable: true),
+                    TenantId = table.Column<Guid>(nullable: false)
                 },
                 constraints: table =>
                 {
@@ -32,7 +33,8 @@ namespace EA.UsageTracking.Infrastructure.Migrations
                     DateCreated = table.Column<DateTime>(nullable: false),
                     DateModified = table.Column<DateTime>(nullable: false),
                     Name = table.Column<string>(nullable: true),
-                    ApplicationId = table.Column<int>(nullable: true)
+                    ApplicationId = table.Column<int>(nullable: true),
+                    TenantId = table.Column<Guid>(nullable: false)
                 },
                 constraints: table =>
                 {
@@ -55,7 +57,8 @@ namespace EA.UsageTracking.Infrastructure.Migrations
                     DateModified = table.Column<DateTime>(nullable: false),
                     Name = table.Column<string>(nullable: true),
                     Email = table.Column<string>(nullable: true),
-                    ApplicationId = table.Column<int>(nullable: true)
+                    ApplicationId = table.Column<int>(nullable: true),
+                    TenantId = table.Column<Guid>(nullable: false)
                 },
                 constraints: table =>
                 {
@@ -79,7 +82,8 @@ namespace EA.UsageTracking.Infrastructure.Migrations
                     ApplicationId = table.Column<int>(nullable: true),
                     ApplicationEventId = table.Column<int>(nullable: true),
                     ApplicationUserId = table.Column<int>(nullable: true),
-                    IsComplete = table.Column<bool>(nullable: false)
+                    IsComplete = table.Column<bool>(nullable: false),
+                    TenantId = table.Column<Guid>(nullable: false)
                 },
                 constraints: table =>
                 {

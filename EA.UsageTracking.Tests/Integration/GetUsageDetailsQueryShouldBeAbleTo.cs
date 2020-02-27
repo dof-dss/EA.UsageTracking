@@ -8,6 +8,8 @@ using EA.UsageTracking.Core.Queries;
 using EA.UsageTracking.Infrastructure.Commands;
 using EA.UsageTracking.Infrastructure.Data;
 using EA.UsageTracking.SharedKernel.Constants;
+using Microsoft.AspNetCore.Http;
+using Moq;
 using NUnit.Framework;
 using NUnit.Framework.Internal;
 
@@ -17,10 +19,16 @@ namespace EA.UsageTracking.Tests.Integration
     public class GetUsageDetailsQueryShouldBeAbleTo
     {
         private readonly UsageTrackingContext _dbContext;
+        private readonly IUsageTrackingContextFactory _dbContextFactory;
 
         public GetUsageDetailsQueryShouldBeAbleTo()
         {
-            _dbContext = new UsageTrackingContext(Helper.CreateNewContextOptionsUsingInMemoryDatabase());
+            var httpContextAccessorMock = new Mock<IHttpContextAccessor>();
+            httpContextAccessorMock.Setup(x => x.HttpContext.Request.Headers[Constants.Tenant.TenantId])
+                .Returns("b0ed668d-7ef2-4a23-a333-94ad278f45d7");
+ 
+            _dbContextFactory = new UsageTrackingContextFactory(httpContextAccessorMock.Object, Helper.CreateNewContextOptionsUsingInMemoryDatabase());
+            _dbContext = _dbContextFactory.UsageTrackingContext;
         }
 
         [TearDown]
@@ -46,8 +54,8 @@ namespace EA.UsageTracking.Tests.Integration
             _dbContext.SaveChanges();
 
             var item = new UsageItemDTO { ApplicationId = app.Id, ApplicationEventId = ev.Id, ApplicationUserId = user.Id };
-            var addUsageItemCommandHandler = new AddUsageItemCommandHandler(_dbContext);
-            var getUsageDetailsQueryHandler = new GetUsageDetailsQueryHandler(_dbContext);
+            var addUsageItemCommandHandler = new AddUsageItemCommandHandler(_dbContextFactory);
+            var getUsageDetailsQueryHandler = new GetUsageDetailsQueryHandler(_dbContextFactory);
 
             //Act
             var addResult = addUsageItemCommandHandler.Handle(new AddUsageItemCommand() { UsageItemDTO = item },
@@ -64,7 +72,7 @@ namespace EA.UsageTracking.Tests.Integration
         public void HandleNoUsageDetails()
         {
             //Arrange
-            var getUsageDetailsQueryHandler = new GetUsageDetailsQueryHandler(_dbContext);
+            var getUsageDetailsQueryHandler = new GetUsageDetailsQueryHandler(_dbContextFactory);
 
             //Act
             var result = getUsageDetailsQueryHandler.Handle(new GetUsageDetailsQuery { Id = 1 },
