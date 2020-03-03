@@ -53,8 +53,8 @@ namespace EA.UsageTracking.Application.API.Controllers
             (await _mediator.Send(new AddUsageItemCommand{UsageItemDTO = item}))
                 .OnBoth(r => r.IsSuccess ? (IActionResult) Ok(r.Value): BadRequest(r.Error));
         
-        [HttpPost("seed")]
-        //[ApiExplorerSettings(IgnoreApi = true)]
+        [HttpPost("seed")] 
+        [ApiExplorerSettings(IgnoreApi = true)]
         public IActionResult Seed()
         {
             SeedData.PopulateTestData(_usageTrackingContext);

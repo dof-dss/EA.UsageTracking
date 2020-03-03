@@ -42,6 +42,7 @@ namespace EA.UsageTracking.Infrastructure
             });
 
             builder.RegisterGeneric(typeof(LoggingBehavior<,>)).As(typeof(IPipelineBehavior<,>));
+            builder.RegisterGeneric(typeof(ExceptionBehavior<,>)).As(typeof(IPipelineBehavior<,>));
 
             var autoMapperProfiles = infrastructureAssembly.DefinedTypes
                 .Where(x => typeof(Profile).IsAssignableFrom(x) && x.IsPublic && !x.IsAbstract)
