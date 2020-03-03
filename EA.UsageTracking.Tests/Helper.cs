@@ -11,7 +11,7 @@ namespace EA.UsageTracking.Tests
 {
     public static class Helper
     {
-        public static void PurgeTable<T>(this UsageTrackingContext usageTrackingContext, DbSet<T> table) where T : BaseEntity
+        public static void PurgeTable<T,TR>(this UsageTrackingContext usageTrackingContext, DbSet<T> table) where T : BaseEntity<TR>
         {
             foreach (var row in table)
             {

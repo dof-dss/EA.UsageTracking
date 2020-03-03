@@ -1,9 +1,10 @@
 ﻿
+using System;
 using EA.UsageTracking.SharedKernel;
 
 namespace EA.UsageTracking.Core.Entities
 {
-    public class UsageItem : BaseEntity
+    public class UsageItem : BaseEntity<int>, IBaseEntity
     {
         public Application Application { get; set; } 
         public ApplicationEvent ApplicationEvent { get; set; }
@@ -14,5 +15,8 @@ namespace EA.UsageTracking.Core.Entities
         {
             IsComplete = true;
         }
+
+        public DateTime DateCreated { get; set; }
+        public DateTime DateModified { get; set; }
     }
 }

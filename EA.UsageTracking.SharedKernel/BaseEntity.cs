@@ -2,11 +2,9 @@
 
 namespace EA.UsageTracking.SharedKernel
 {
-    public abstract class BaseEntity
+    public abstract class BaseEntity<T>
     {
         protected Guid _tenantId;
-        public int Id { get; set; }
-        public DateTime DateCreated { get; set; }
-        public DateTime DateModified { get; set; }
+        public T Id { get; set; }
     }
 }

@@ -8,7 +8,7 @@ namespace EA.UsageTracking.SharedKernel.Constants
     {
         public class ErrorMessages
         {
-            public const string NoApplicationExists = "Application does not exist";
+            public const string NoTenantExists = "Invalid Tenant";
             public const string NoEventExists = "Event does not exist";
             public const string NoUserExists = "User does not exist";
             public const string NoItemExists = "Item does not exist";

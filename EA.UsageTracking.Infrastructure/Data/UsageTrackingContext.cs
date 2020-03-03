@@ -33,17 +33,36 @@ namespace EA.UsageTracking.Infrastructure.Data
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
-            modelBuilder.Entity<Application>().Property<Guid>("_tenantId").HasColumnName("TenantId");
-            modelBuilder.Entity<Application>().HasQueryFilter(b => EF.Property<Guid>(b, "_tenantId") == _tenantId);
+            modelBuilder.Entity<ApplicationEvent>().Property<bool>("isDeleted");
+            modelBuilder.Entity<Application>().Property<bool>("isDeleted");
+            modelBuilder.Entity<ApplicationUser>().Property<bool>("isDeleted");
+            modelBuilder.Entity<UsageItem>().Property<bool>("isDeleted");
 
-            modelBuilder.Entity<ApplicationUser>().Property<Guid>("_tenantId").HasColumnName("TenantId");
-            modelBuilder.Entity<ApplicationUser>().HasQueryFilter(b => EF.Property<Guid>(b, "_tenantId") == _tenantId);
+            modelBuilder.Entity<Application>().Property<Guid>("_tenantId").HasColumnName("TenantId");
+            modelBuilder.Entity<Application>()
+                .HasQueryFilter(b => EF.Property<Guid>(b, "_tenantId") == _tenantId 
+                                     && EF.Property<bool>(b, "isDeleted") == false);
+
+            modelBuilder.Entity<ApplicationUser>().HasQueryFilter(b => EF.Property<bool>(b, "isDeleted") == false);
 
             modelBuilder.Entity<ApplicationEvent>().Property<Guid>("_tenantId").HasColumnName("TenantId");
-            modelBuilder.Entity<ApplicationEvent>().HasQueryFilter(b => EF.Property<Guid>(b, "_tenantId") == _tenantId);
+            modelBuilder.Entity<ApplicationEvent>().HasQueryFilter(b => EF.Property<Guid>(b, "_tenantId") == _tenantId
+                                                                        && EF.Property<bool>(b, "isDeleted") == false);
 
             modelBuilder.Entity<UsageItem>().Property<Guid>("_tenantId").HasColumnName("TenantId");
-            modelBuilder.Entity<UsageItem>().HasQueryFilter(b => EF.Property<Guid>(b, "_tenantId") == _tenantId);
+            modelBuilder.Entity<UsageItem>().HasQueryFilter(b => EF.Property<Guid>(b, "_tenantId") == _tenantId 
+                                                                 && EF.Property<bool>(b, "isDeleted") == false);
+
+            modelBuilder.Entity<UserToApplication>().HasKey(ua => new { ua.UserId, ua.ApplicationId });
+            modelBuilder.Entity<UserToApplication>()
+                .HasOne(pt => pt.User)
+                .WithMany(p => p.UserToApplications)
+                .HasForeignKey(pt => pt.UserId);
+
+            modelBuilder.Entity<UserToApplication>()
+                .HasOne(pt => pt.Application)
+                .WithMany(t => t.UserToApplications)
+                .HasForeignKey(pt => pt.ApplicationId);
 
             base.OnModelCreating(modelBuilder);
 
@@ -54,20 +73,31 @@ namespace EA.UsageTracking.Infrastructure.Data
         {
             var entries = ChangeTracker
                 .Entries()
-                .Where(e => e.Entity is BaseEntity && (
+                .Where(e => (e.Entity is IBaseEntity) && (
                                 e.State == EntityState.Added
-                                || e.State == EntityState.Modified));
+                                || e.State == EntityState.Modified
+                                || e.State == EntityState.Deleted));
 
             foreach (var entityEntry in entries)
             {
-                ((BaseEntity)entityEntry.Entity).DateModified = DateTime.Now;
+                ((IBaseEntity)entityEntry.Entity).DateModified = DateTime.Now;
 
-                if (entityEntry.State != EntityState.Added) continue;
+                switch (entityEntry.State)
+                {
+                    case EntityState.Added:
+                        ((IBaseEntity)entityEntry.Entity).DateCreated = DateTime.Now;
 
-                ((BaseEntity)entityEntry.Entity).DateCreated = DateTime.Now;
+                        if (entityEntry.Metadata.GetProperties().Any(p => p.Name == "_tenantId"))
+                            entityEntry.CurrentValues["_tenantId"] = _tenantId;
 
-                if (entityEntry.Metadata.GetProperties().Any(p => p.Name == "_tenantId"))
-                    entityEntry.CurrentValues["_tenantId"] = _tenantId;
+                        entityEntry.CurrentValues["isDeleted"] = false;
+                        break;
+                    case EntityState.Deleted:
+                        entityEntry.State = EntityState.Modified;
+                        entityEntry.CurrentValues["isDeleted"] = true;
+                        break;
+                }
+
             }
             return await base.SaveChangesAsync(cancellationToken);
         }

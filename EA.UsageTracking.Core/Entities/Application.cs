@@ -5,11 +5,12 @@ using EA.UsageTracking.SharedKernel;
 
 namespace EA.UsageTracking.Core.Entities
 {
-    public class Application: BaseEntity
+    public class Application: BaseEntity<int>, IBaseEntity
     {
         public string Name { get; set; }
-        public IEnumerable<ApplicationEvent> ApplicationEvents { get; set; }
-        public IEnumerable<ApplicationUser> ApplicationUsers{ get; set; }
-        
+        public virtual ICollection<ApplicationEvent> ApplicationEvents { get; set; }
+        public ICollection<UserToApplication> UserToApplications { get; set; } = new List<UserToApplication>();
+        public DateTime DateCreated { get; set; }
+        public DateTime DateModified { get; set; }
     }
 }

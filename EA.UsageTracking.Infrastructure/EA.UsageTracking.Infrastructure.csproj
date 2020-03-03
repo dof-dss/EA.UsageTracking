@@ -28,12 +28,35 @@
     <Compile Remove="Migrations\20200225124738_init.Designer.cs" />
     <Compile Remove="Migrations\20200226113522_multi-tenant.cs" />
     <Compile Remove="Migrations\20200226113522_multi-tenant.Designer.cs" />
+    <Compile Remove="Migrations\20200226135225_init.cs" />
+    <Compile Remove="Migrations\20200226135225_init.Designer.cs" />
+    <Compile Remove="Migrations\20200228103429_soft-delete.cs" />
+    <Compile Remove="Migrations\20200228103429_soft-delete.Designer.cs" />
+    <Compile Remove="Migrations\20200228153923_AddAppToEvent.cs" />
+    <Compile Remove="Migrations\20200228153923_AddAppToEvent.Designer.cs" />
+    <Compile Remove="Migrations\20200302134948_AddGuidToAppAndUser.cs" />
+    <Compile Remove="Migrations\20200302134948_AddGuidToAppAndUser.Designer.cs" />
+    <Compile Remove="Migrations\20200302135302_init.cs" />
+    <Compile Remove="Migrations\20200302135302_init.Designer.cs" />
+    <Compile Remove="Migrations\20200302140046_mapTenantToIDOnApp.cs" />
+    <Compile Remove="Migrations\20200302140046_mapTenantToIDOnApp.Designer.cs" />
+    <Compile Remove="Migrations\20200302154036_refactorUser.cs" />
+    <Compile Remove="Migrations\20200302154036_refactorUser.Designer.cs" />
+    <Compile Remove="Migrations\20200302164027_refactorUserAddCombinedKey.cs" />
+    <Compile Remove="Migrations\20200302164027_refactorUserAddCombinedKey.Designer.cs" />
+    <Compile Remove="Migrations\20200302164300_init.cs" />
+    <Compile Remove="Migrations\20200302164300_init.Designer.cs" />
+    <Compile Remove="Migrations\20200303091358_addTenantIdToApp.cs" />
+    <Compile Remove="Migrations\20200303091358_addTenantIdToApp.Designer.cs" />
+    <Compile Remove="Migrations\20200303092408_AppPKToInt.cs" />
+    <Compile Remove="Migrations\20200303092408_AppPKToInt.Designer.cs" />
   </ItemGroup>
 
   <ItemGroup>
     <PackageReference Include="Autofac" Version="5.1.2" />
     <PackageReference Include="Autofac.Extensions.DependencyInjection" Version="6.0.0" />
     <PackageReference Include="Ardalis.EFCore.Extensions" Version="1.1.0" />
+    <PackageReference Include="AutoMapper" Version="9.0.0" />
     <PackageReference Include="MediatR" Version="8.0.0" />
     <PackageReference Include="Microsoft.AspNetCore.Http.Features" Version="3.1.2" />
     <PackageReference Include="Microsoft.EntityFrameworkCore.Tools" Version="3.1.2">
@@ -54,5 +77,10 @@
     <Reference Include="Microsoft.AspNetCore.Http.Abstractions">
       <HintPath>..\..\..\..\..\..\Program Files\dotnet\packs\Microsoft.AspNetCore.App.Ref\3.1.0\ref\netcoreapp3.1\Microsoft.AspNetCore.Http.Abstractions.dll</HintPath>
     </Reference>
+  </ItemGroup>
+  
+  <ItemGroup>
+    <Folder Include="Features\Applications\Commands\" />
+    <Folder Include="Features\Applications\Queries\" />
   </ItemGroup>
 </Project>

@@ -36,6 +36,9 @@ namespace EA.UsageTracking.Infrastructure.Migrations
                         .HasColumnName("TenantId")
                         .HasColumnType("char(36)");
 
+                    b.Property<bool>("isDeleted")
+                        .HasColumnType("tinyint(1)");
+
                     b.HasKey("Id");
 
                     b.ToTable("Applications");
@@ -63,6 +66,9 @@ namespace EA.UsageTracking.Infrastructure.Migrations
                         .HasColumnName("TenantId")
                         .HasColumnType("char(36)");
 
+                    b.Property<bool>("isDeleted")
+                        .HasColumnType("tinyint(1)");
+
                     b.HasKey("Id");
 
                     b.HasIndex("ApplicationId");
@@ -72,12 +78,9 @@ namespace EA.UsageTracking.Infrastructure.Migrations
 
             modelBuilder.Entity("EA.UsageTracking.Core.Entities.ApplicationUser", b =>
                 {
-                    b.Property<int>("Id")
+                    b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
-
-                    b.Property<int?>("ApplicationId")
-                        .HasColumnType("int");
+                        .HasColumnType("char(36)");
 
                     b.Property<DateTime>("DateCreated")
                         .HasColumnType("datetime(6)");
@@ -91,13 +94,10 @@ namespace EA.UsageTracking.Infrastructure.Migrations
                     b.Property<string>("Name")
                         .HasColumnType("longtext CHARACTER SET utf8mb4");
 
-                    b.Property<Guid>("_tenantId")
-                        .HasColumnName("TenantId")
-                        .HasColumnType("char(36)");
+                    b.Property<bool>("isDeleted")
+                        .HasColumnType("tinyint(1)");
 
                     b.HasKey("Id");
-
-                    b.HasIndex("ApplicationId");
 
                     b.ToTable("ApplicationUsers");
                 });
@@ -114,8 +114,8 @@ namespace EA.UsageTracking.Infrastructure.Migrations
                     b.Property<int?>("ApplicationId")
                         .HasColumnType("int");
 
-                    b.Property<int?>("ApplicationUserId")
-                        .HasColumnType("int");
+                    b.Property<Guid?>("ApplicationUserId")
+                        .HasColumnType("char(36)");
 
                     b.Property<DateTime>("DateCreated")
                         .HasColumnType("datetime(6)");
@@ -130,6 +130,9 @@ namespace EA.UsageTracking.Infrastructure.Migrations
                         .HasColumnName("TenantId")
                         .HasColumnType("char(36)");
 
+                    b.Property<bool>("isDeleted")
+                        .HasColumnType("tinyint(1)");
+
                     b.HasKey("Id");
 
                     b.HasIndex("ApplicationEventId");
@@ -141,17 +144,25 @@ namespace EA.UsageTracking.Infrastructure.Migrations
                     b.ToTable("UsageItems");
                 });
 
-            modelBuilder.Entity("EA.UsageTracking.Core.Entities.ApplicationEvent", b =>
+            modelBuilder.Entity("EA.UsageTracking.Core.Entities.UserToApplication", b =>
                 {
-                    b.HasOne("EA.UsageTracking.Core.Entities.Application", null)
-                        .WithMany("ApplicationEvents")
-                        .HasForeignKey("ApplicationId");
+                    b.Property<Guid>("UserId")
+                        .HasColumnType("char(36)");
+
+                    b.Property<int>("ApplicationId")
+                        .HasColumnType("int");
+
+                    b.HasKey("UserId", "ApplicationId");
+
+                    b.HasIndex("ApplicationId");
+
+                    b.ToTable("UserToApplication");
                 });
 
-            modelBuilder.Entity("EA.UsageTracking.Core.Entities.ApplicationUser", b =>
+            modelBuilder.Entity("EA.UsageTracking.Core.Entities.ApplicationEvent", b =>
                 {
-                    b.HasOne("EA.UsageTracking.Core.Entities.Application", null)
-                        .WithMany("ApplicationUsers")
+                    b.HasOne("EA.UsageTracking.Core.Entities.Application", "Application")
+                        .WithMany("ApplicationEvents")
                         .HasForeignKey("ApplicationId");
                 });
 
@@ -168,6 +179,21 @@ namespace EA.UsageTracking.Infrastructure.Migrations
                     b.HasOne("EA.UsageTracking.Core.Entities.ApplicationUser", "ApplicationUser")
                         .WithMany()
                         .HasForeignKey("ApplicationUserId");
+                });
+
+            modelBuilder.Entity("EA.UsageTracking.Core.Entities.UserToApplication", b =>
+                {
+                    b.HasOne("EA.UsageTracking.Core.Entities.Application", "Application")
+                        .WithMany("UserToApplications")
+                        .HasForeignKey("ApplicationId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("EA.UsageTracking.Core.Entities.ApplicationUser", "User")
+                        .WithMany("UserToApplications")
+                        .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
                 });
 #pragma warning restore 612, 618
         }

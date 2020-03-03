@@ -1,11 +1,14 @@
 ﻿using System;
+using System.Linq;
 using System.Reflection;
 using Autofac;
 using Autofac.Extensions.DependencyInjection;
+using AutoMapper;
 using EA.UsageTracking.Core.Entities;
 using EA.UsageTracking.Infrastructure.Behaviors;
 using EA.UsageTracking.Infrastructure.Data;
 using EA.UsageTracking.SharedKernel;
+using EA.UsageTracking.SharedKernel.Constants;
 using MediatR;
 using MediatR.Pipeline;
 using Microsoft.Extensions.DependencyInjection;
@@ -27,7 +30,7 @@ namespace EA.UsageTracking.Infrastructure
 
             var coreAssembly = Assembly.GetAssembly(typeof(UsageItem));
             var infrastructureAssembly = Assembly.GetAssembly(typeof(UsageTrackingContext));
-            var sharedKernelAssembly = Assembly.GetAssembly(typeof(BaseEntity));
+            var sharedKernelAssembly = Assembly.GetAssembly(typeof(Constants));
 
             builder.RegisterType<Mediator>().As<IMediator>().InstancePerLifetimeScope();
             builder.RegisterType<UsageTrackingContextFactory>().As<IUsageTrackingContextFactory>();
@@ -39,6 +42,20 @@ namespace EA.UsageTracking.Infrastructure
             });
 
             builder.RegisterGeneric(typeof(LoggingBehavior<,>)).As(typeof(IPipelineBehavior<,>));
+
+            var autoMapperProfiles = infrastructureAssembly.DefinedTypes
+                .Where(x => typeof(Profile).IsAssignableFrom(x) && x.IsPublic && !x.IsAbstract)
+                .Select(p => (Profile)Activator.CreateInstance(p)).ToList();
+
+            builder.Register(ctx => new MapperConfiguration(cfg =>
+            {
+                foreach (var profile in autoMapperProfiles)
+                {
+                    cfg.AddProfile(profile);
+                }
+            }));
+
+            builder.Register(ctx => ctx.Resolve<MapperConfiguration>().CreateMapper()).As<IMapper>().InstancePerLifetimeScope();
 
             builder.RegisterAssemblyTypes(sharedKernelAssembly, coreAssembly, infrastructureAssembly).AsImplementedInterfaces();
 

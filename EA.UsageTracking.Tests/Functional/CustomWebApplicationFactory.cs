@@ -1,6 +1,6 @@
 ﻿using System;
 using System.Linq;
-using EA.UsageTracking.API;
+using EA.UsageTracking.Application.API;
 using EA.UsageTracking.Infrastructure.Data;
 using EA.UsageTracking.SharedKernel.Constants;
 using Microsoft.AspNetCore.Hosting;
