@@ -71,7 +71,7 @@ namespace EA.UsageTracking.Tests.Functional
                 try
                 {
                     // Seed the database with test data.
-                    SeedData.PopulateTestData(db.UsageTrackingContext);
+                    new SeedData(db.UsageTrackingContext).PopulateTestData();
                 }
                 catch (Exception ex)
                 {

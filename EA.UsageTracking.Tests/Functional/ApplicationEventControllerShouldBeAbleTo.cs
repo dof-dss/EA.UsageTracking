@@ -7,6 +7,7 @@ using System.Text;
 using System.Threading.Tasks;
 using EA.UsageTracking.Application.API;
 using EA.UsageTracking.Core.DTOs;
+using EA.UsageTracking.Infrastructure.Features.Pagination;
 using EA.UsageTracking.SharedKernel.Constants;
 using Newtonsoft.Json;
 using NUnit.Framework;
@@ -32,10 +33,10 @@ namespace EA.UsageTracking.Tests.Functional
             var response = await _client.GetAsync("/api/applicationEvent?PageNumber=1&PageSize=100");
             response.EnsureSuccessStatusCode();
             var stringResponse = await response.Content.ReadAsStringAsync();
-            var result = JsonConvert.DeserializeObject<IEnumerable<ApplicationEventDTO>>(stringResponse).ToList();
+            var result = JsonConvert.DeserializeObject<PagedResponse< ApplicationEventDTO>>(stringResponse);
 
             //Assert
-            Assert.AreEqual(3, result.Count());
+            Assert.AreEqual(3, result.Total);
         }
 
         [Test]

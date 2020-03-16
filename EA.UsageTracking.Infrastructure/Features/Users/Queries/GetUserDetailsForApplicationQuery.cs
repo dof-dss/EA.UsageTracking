@@ -11,6 +11,7 @@ using EA.UsageTracking.Infrastructure.Features.Events.Queries;
 using EA.UsageTracking.SharedKernel;
 using EA.UsageTracking.SharedKernel.Constants;
 using EA.UsageTracking.SharedKernel.Extensions;
+using EA.UsageTracking.SharedKernel.Functional;
 using MediatR;
 using Microsoft.EntityFrameworkCore;
 

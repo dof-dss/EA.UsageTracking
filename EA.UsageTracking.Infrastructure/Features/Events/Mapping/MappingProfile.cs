@@ -4,6 +4,7 @@ using System.Text;
 using AutoMapper;
 using EA.UsageTracking.Core.DTOs;
 using EA.UsageTracking.Core.Entities;
+using EA.UsageTracking.Infrastructure.Features.Events.Queries;
 
 namespace EA.UsageTracking.Infrastructure.Features.Events.Mapping
 {
@@ -13,6 +14,7 @@ namespace EA.UsageTracking.Infrastructure.Features.Events.Mapping
         {
             CreateMap<ApplicationEvent, ApplicationEventDTO>();
             CreateMap<ApplicationEventDTO, ApplicationEvent>();
+            CreateMap<GetEventsForApplicationQuery, Pagination.PaginationDetails>();
         }
     }
 }

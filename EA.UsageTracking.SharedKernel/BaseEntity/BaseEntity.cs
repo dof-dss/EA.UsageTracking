@@ -1,10 +1,10 @@
 ﻿using System;
 
-namespace EA.UsageTracking.SharedKernel
+namespace EA.UsageTracking.SharedKernel.BaseEntity
 {
     public abstract class BaseEntity<T>
     {
-        protected Guid _tenantId;
+        public Guid TenantId { get; set; }
         public T Id { get; set; }
     }
 }

@@ -7,6 +7,7 @@ using System.Threading.Tasks;
 using EA.UsageTracking.Application.API;
 using EA.UsageTracking.Core.DTOs;
 using EA.UsageTracking.Core.Entities;
+using EA.UsageTracking.Infrastructure.Features.Pagination;
 using EA.UsageTracking.SharedKernel.Constants;
 using Newtonsoft.Json;
 using NUnit.Framework;
@@ -29,13 +30,14 @@ namespace EA.UsageTracking.Tests.Functional
         public async Task GetAllForApplication()
         {
             //Act
-            var response = await _client.GetAsync("/api/applicationUsage?PageNumber=1&PageSize=100");
+            var response = await _client.GetAsync("/api/applicationUsage?PageNumber=1&PageSize=1");
             response.EnsureSuccessStatusCode();
             var stringResponse = await response.Content.ReadAsStringAsync();
-            var result = JsonConvert.DeserializeObject<IEnumerable<UsageItemDTO>>(stringResponse).ToList();
+            var result = JsonConvert.DeserializeObject<PagedResponse<UsageItemDTO>>(stringResponse);
 
             //Assert
-            Assert.AreEqual(2, result.Count());
+            Assert.AreEqual(2, result.Total);
+            Assert.AreEqual(1, result.Data.Count());
         }
 
         [Test]
@@ -60,11 +62,11 @@ namespace EA.UsageTracking.Tests.Functional
             var response = await _client.GetAsync("/api/applicationUsage/user?id=b0ed668d-7ef2-4a23-a333-94ad278f4111");
             response.EnsureSuccessStatusCode();
             var stringResponse = await response.Content.ReadAsStringAsync();
-            var result = JsonConvert.DeserializeObject<IEnumerable<UsageItemDTO>>(stringResponse);
+            var result = JsonConvert.DeserializeObject<PagedResponse<UsageItemDTO>>(stringResponse);
 
             //Assert
-            Assert.AreEqual(1, result.Count());
-            Assert.AreEqual("User 1", result.First().ApplicationUserName);
+            Assert.AreEqual(1, result.Total);
+            Assert.AreEqual("User 1", result.Data.First().ApplicationUserName);
         }
 
         [Test]
@@ -78,12 +80,10 @@ namespace EA.UsageTracking.Tests.Functional
             var response = await _client.PostAsJsonAsync("/api/applicationUsage", usageItemDTO);
             response.EnsureSuccessStatusCode();
             var stringResponse = await response.Content.ReadAsStringAsync();
-            var result = JsonConvert.DeserializeObject<UsageItemDTO>(stringResponse);
+            var result = int.Parse(stringResponse);
 
             //Assert
-            Assert.AreEqual("Application 1", result.ApplicationName);
-            Assert.AreEqual("Event 1", result.ApplicationEventName);
-            Assert.AreEqual("User 1", result.ApplicationUserName);
+            Assert.Greater(result, 0);
         }
     }
 }

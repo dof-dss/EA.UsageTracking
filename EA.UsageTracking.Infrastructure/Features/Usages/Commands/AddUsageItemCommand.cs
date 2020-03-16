@@ -1,56 +1,78 @@
-﻿using System.Linq;
+﻿using System;
+using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using AutoMapper;
 using EA.UsageTracking.Core.DTOs;
 using EA.UsageTracking.Core.Entities;
 using EA.UsageTracking.Infrastructure.Data;
+using EA.UsageTracking.Infrastructure.Features.Common;
+using EA.UsageTracking.Infrastructure.Features.Events.Commands;
+using EA.UsageTracking.Infrastructure.Features.Pagination;
+using EA.UsageTracking.Infrastructure.Features.Usages.Validation;
 using EA.UsageTracking.SharedKernel;
 using EA.UsageTracking.SharedKernel.Constants;
 using EA.UsageTracking.SharedKernel.Extensions;
+using EA.UsageTracking.SharedKernel.Functional;
 using MediatR;
+using Microsoft.AspNetCore.Mvc.TagHelpers;
+using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Caching.Distributed;
+using Microsoft.Extensions.DependencyInjection;
 
 namespace EA.UsageTracking.Infrastructure.Features.Usages.Commands
 {
-    public class AddUsageItemCommand : IRequest<Result<UsageItemDTO>>
-    {
-        public UsageItemDTO UsageItemDTO { get; set; }
+    public class AddUsageItemCommand : IRequest<Result<int>>
+    { 
+        public Guid TenantId { get; set; }
+        public int ApplicationEventId { get; set; }
+        public Guid ApplicationUserId { get; set; }
     }
 
-    public class AddUsageItemCommandHandler : IRequestHandler<AddUsageItemCommand, Result<UsageItemDTO>>
+    public class AddUsageItemCommandHandler : IRequestHandler<AddUsageItemCommand, Result<int>>
     {
-        private readonly UsageTrackingContext _dbContext;
-        private readonly IMapper _mapper;
+        private readonly AddUsageItemCommandValidator _validator;
+        private readonly IServiceScopeFactory _serviceScopeFactory;
 
-        public AddUsageItemCommandHandler(IUsageTrackingContextFactory dbContextFactory, IMapper mapper)
+        public AddUsageItemCommandHandler(IServiceScopeFactory serviceScopeFactory)
         {
-            _dbContext = dbContextFactory.UsageTrackingContext;
-            _mapper = mapper;
+            _validator = new AddUsageItemCommandValidator();
+            _serviceScopeFactory = serviceScopeFactory;
         }
 
-        public async Task<Result<UsageItemDTO>> Handle(AddUsageItemCommand request, CancellationToken cancellationToken)
+        public async Task<Result<int>> Handle(AddUsageItemCommand request, CancellationToken cancellationToken)
         {
-            var applicationResult = _dbContext.Applications.SingleOrDefault().ToMaybe().ToResult(Constants.ErrorMessages.NoTenantExists);
-            var applicationEventResult = _dbContext.ApplicationEvents.SingleOrDefault(x => x.Id == request.UsageItemDTO.ApplicationEventId).ToMaybe()
-                .ToResult(Constants.ErrorMessages.NoEventExists);
-            var applicationUserResult = _dbContext.ApplicationUsers.SingleOrDefault(x => x.Id == request.UsageItemDTO.ApplicationUserId).ToMaybe()
-                .ToResult(Constants.ErrorMessages.NoUserExists);
-
-            var combinedResult = Result.Combine(applicationResult, applicationEventResult, applicationUserResult);
-            if (combinedResult.IsFailure)
-                return Result.Fail<UsageItemDTO>(combinedResult.Error);
-
-            var usageItem = new UsageItem()
+            using (var scope = _serviceScopeFactory.CreateScope())
             {
-                Application = applicationResult.Value,
-                ApplicationEvent = applicationEventResult.Value,
-                ApplicationUser = applicationUserResult.Value,
-            };
+                var scopedServices = scope.ServiceProvider;
+                var dbContext = scopedServices.GetRequiredService<UsageTrackingContext>();
 
-            _dbContext.UsageItems.Add(usageItem);
-            await _dbContext.SaveChangesAsync();
+                dbContext.TenantId = request.TenantId;
 
-            return Result.Ok(_mapper.Map<UsageItemDTO>(usageItem));
+                var applicationResult = dbContext.Applications.AsNoTracking().SingleOrDefault().ToMaybe()
+                    .ToResult(Constants.ErrorMessages.NoTenantExists);
+                var validationResult = Validate(request);
+                var combinedResults = Result.Combine(applicationResult, validationResult);
+                if(combinedResults.IsFailure) return Result.Fail<int>(combinedResults.Error);
+
+                var usageItem = new UsageItem()
+                {
+                    ApplicationId = applicationResult.Value.Id,
+                    ApplicationEventId = request.ApplicationEventId,
+                    ApplicationUserId = request.ApplicationUserId,
+                };
+
+                dbContext.UsageItems.Add(usageItem);
+                await dbContext.SaveChangesAsync(cancellationToken);
+
+                return Result.Ok(usageItem.Id);
+            }
+        }
+
+        protected Result Validate(AddUsageItemCommand request)
+        {
+            var validate = _validator.Validate(request);
+            return !validate.IsValid ? Result.Fail(validate.ToString(",")) : Result.Ok();
         }
     }
 }

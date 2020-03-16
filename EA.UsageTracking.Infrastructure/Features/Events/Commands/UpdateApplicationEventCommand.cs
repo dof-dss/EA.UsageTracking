@@ -11,7 +11,9 @@ using EA.UsageTracking.Infrastructure.Features.Common;
 using EA.UsageTracking.SharedKernel;
 using EA.UsageTracking.SharedKernel.Constants;
 using EA.UsageTracking.SharedKernel.Extensions;
+using EA.UsageTracking.SharedKernel.Functional;
 using MediatR;
+using Microsoft.EntityFrameworkCore;
 
 namespace EA.UsageTracking.Infrastructure.Features.Events.Commands
 {
@@ -20,7 +22,7 @@ namespace EA.UsageTracking.Infrastructure.Features.Events.Commands
         public ApplicationEventDTO ApplicationEventDto { get; set; }
     }
 
-    public class UpdateApplicationEventCommandHandler : AsyncBaseHandler, IRequestHandler<UpdateApplicationEventCommand,Result<ApplicationEventDTO>>
+    public class UpdateApplicationEventCommandHandler : AsyncBaseHandler<UpdateApplicationEventCommand>, IRequestHandler<UpdateApplicationEventCommand,Result<ApplicationEventDTO>>
     {
         public UpdateApplicationEventCommandHandler(IUsageTrackingContextFactory usageTrackingContextFactory, IMapper mapper) :
             base(usageTrackingContextFactory, mapper)
@@ -28,22 +30,22 @@ namespace EA.UsageTracking.Infrastructure.Features.Events.Commands
 
         public async Task<Result<ApplicationEventDTO>> Handle(UpdateApplicationEventCommand request, CancellationToken cancellationToken)
         {
-            var applicationResult = DbContext.Applications.SingleOrDefault()
-                .ToMaybe().ToResult(Constants.ErrorMessages.NoTenantExists);
+            var validationResults = Validate(request);
+            if (validationResults.IsFailure)
+                return Result.Fail<ApplicationEventDTO>(validationResults.Error);
 
-            var applicationEventResult = DbContext.ApplicationEvents
-                .SingleOrDefault(x => x.Id == request.ApplicationEventDto.Id)
-                .ToMaybe().ToResult(Constants.ErrorMessages.NoEventExists);
+            var eventToUpdate = await DbContext.ApplicationEvents.SingleAsync(x => x.Id == request.ApplicationEventDto.Id, cancellationToken);
+            Mapper.Map(request.ApplicationEventDto, eventToUpdate);
 
-            var combinedResults = Result.Combine(applicationResult, applicationEventResult);
-            if (combinedResults.IsFailure)
-                return Result.Fail<ApplicationEventDTO>(combinedResults.Error);
-
-            Mapper.Map(request.ApplicationEventDto, applicationEventResult.Value);
-
-            await DbContext.SaveChangesAsync();
+            await DbContext.SaveChangesAsync(cancellationToken);
 
             return Result.Ok(request.ApplicationEventDto);
         }
+
+        protected override Result CustomValidate(UpdateApplicationEventCommand request) =>
+            DbContext.ApplicationEvents
+                .Any(x => x.Id == request.ApplicationEventDto.Id)
+                ? Result.Ok()
+                : Result.Fail(Constants.ErrorMessages.NoEventExists);
     }
 }

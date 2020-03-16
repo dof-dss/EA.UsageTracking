@@ -11,12 +11,13 @@ namespace EA.UsageTracking.Tests
 {
     public static class Helper
     {
-        public static void PurgeTable<T,TR>(this UsageTrackingContext usageTrackingContext, DbSet<T> table) where T : BaseEntity<TR>
+        public static void PurgeTable<T>(this UsageTrackingContext usageTrackingContext, DbSet<T> table) where T : class
         {
             foreach (var row in table)
             {
                 usageTrackingContext.Set<T>().Remove(row);
             }
+            usageTrackingContext.SaveChanges();
         }
 
         public static DbContextOptions<UsageTrackingContext> CreateNewContextOptionsUsingInMemoryDatabase()
@@ -34,9 +35,9 @@ namespace EA.UsageTracking.Tests
 
         internal static object GetInstanceField(Type type, object instance, string fieldName)
         {
-            BindingFlags bindFlags = BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic
+            var bindFlags = BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic
                                      | BindingFlags.Static;
-            FieldInfo field = type.GetField(fieldName, bindFlags);
+            var field = type.GetField(fieldName, bindFlags);
             return field.GetValue(instance);
         }
 

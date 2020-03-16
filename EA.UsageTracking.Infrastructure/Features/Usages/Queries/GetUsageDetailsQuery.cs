@@ -6,6 +6,7 @@ using EA.UsageTracking.Infrastructure.Data;
 using EA.UsageTracking.SharedKernel;
 using EA.UsageTracking.SharedKernel.Constants;
 using EA.UsageTracking.SharedKernel.Extensions;
+using EA.UsageTracking.SharedKernel.Functional;
 using MediatR;
 using Microsoft.EntityFrameworkCore;
 

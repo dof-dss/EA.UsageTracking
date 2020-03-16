@@ -5,18 +5,20 @@ using System.Threading.Tasks;
 using Ardalis.EFCore.Extensions;
 using EA.UsageTracking.Core.Entities;
 using EA.UsageTracking.SharedKernel;
+using EA.UsageTracking.SharedKernel.BaseEntity;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Infrastructure;
 
 namespace EA.UsageTracking.Infrastructure.Data
 {
     public class UsageTrackingContext : DbContext
     {
-        private readonly Guid _tenantId;
+        public Guid TenantId { get; set; }
 
         public UsageTrackingContext(DbContextOptions<UsageTrackingContext> options, Guid tenantId)
             : base(options)
         {
-            _tenantId = tenantId;
+            TenantId = tenantId;
         }
 
         public UsageTrackingContext(DbContextOptions<UsageTrackingContext> options)
@@ -38,19 +40,16 @@ namespace EA.UsageTracking.Infrastructure.Data
             modelBuilder.Entity<ApplicationUser>().Property<bool>("isDeleted");
             modelBuilder.Entity<UsageItem>().Property<bool>("isDeleted");
 
-            modelBuilder.Entity<Application>().Property<Guid>("_tenantId").HasColumnName("TenantId");
             modelBuilder.Entity<Application>()
-                .HasQueryFilter(b => EF.Property<Guid>(b, "_tenantId") == _tenantId 
+                .HasQueryFilter(b => EF.Property<Guid>(b, "TenantId") == TenantId 
                                      && EF.Property<bool>(b, "isDeleted") == false);
 
             modelBuilder.Entity<ApplicationUser>().HasQueryFilter(b => EF.Property<bool>(b, "isDeleted") == false);
 
-            modelBuilder.Entity<ApplicationEvent>().Property<Guid>("_tenantId").HasColumnName("TenantId");
-            modelBuilder.Entity<ApplicationEvent>().HasQueryFilter(b => EF.Property<Guid>(b, "_tenantId") == _tenantId
+            modelBuilder.Entity<ApplicationEvent>().HasQueryFilter(b => EF.Property<Guid>(b, "TenantId") == TenantId
                                                                         && EF.Property<bool>(b, "isDeleted") == false);
 
-            modelBuilder.Entity<UsageItem>().Property<Guid>("_tenantId").HasColumnName("TenantId");
-            modelBuilder.Entity<UsageItem>().HasQueryFilter(b => EF.Property<Guid>(b, "_tenantId") == _tenantId 
+            modelBuilder.Entity<UsageItem>().HasQueryFilter(b => EF.Property<Guid>(b, "TenantId") == TenantId 
                                                                  && EF.Property<bool>(b, "isDeleted") == false);
 
             modelBuilder.Entity<UserToApplication>().HasKey(ua => new { ua.UserId, ua.ApplicationId });
@@ -69,7 +68,7 @@ namespace EA.UsageTracking.Infrastructure.Data
             modelBuilder.ApplyAllConfigurationsFromCurrentAssembly();
         }
 
-        public async override Task<int> SaveChangesAsync(CancellationToken cancellationToken = new CancellationToken())
+        public override async Task<int> SaveChangesAsync(CancellationToken cancellationToken = new CancellationToken())
         {
             var entries = ChangeTracker
                 .Entries()
@@ -87,8 +86,8 @@ namespace EA.UsageTracking.Infrastructure.Data
                     case EntityState.Added:
                         ((IBaseEntity)entityEntry.Entity).DateCreated = DateTime.Now;
 
-                        if (entityEntry.Metadata.GetProperties().Any(p => p.Name == "_tenantId"))
-                            entityEntry.CurrentValues["_tenantId"] = _tenantId;
+                        if (entityEntry.Metadata.GetProperties().Any(p => p.Name == "TenantId"))
+                            entityEntry.CurrentValues["TenantId"] = TenantId;
 
                         entityEntry.CurrentValues["isDeleted"] = false;
                         break;
@@ -99,6 +98,7 @@ namespace EA.UsageTracking.Infrastructure.Data
                 }
 
             }
+
             return await base.SaveChangesAsync(cancellationToken);
         }
 

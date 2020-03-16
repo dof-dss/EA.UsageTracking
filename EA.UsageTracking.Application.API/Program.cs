@@ -17,7 +17,8 @@ namespace EA.UsageTracking.Application.API
             WebHost.CreateDefaultBuilder(args)
                 .ConfigureLogging((context, logging) =>
                 {
-                    logging.AddEventLog();
+                   // logging.AddEventLog();
+                    logging.AddConsole();
                 })
                 .UseCloudHosting()
                 .AddCloudFoundry()

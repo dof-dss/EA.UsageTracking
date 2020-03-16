@@ -16,10 +16,10 @@ namespace EA.UsageTracking.Tests.Integration.Usage
         public async Task HandleAddUsageItemWithNoApplication()
         {
             // Arrange
-            var item = new UsageItemDTO { ApplicationId = 1, ApplicationEventId = 1, ApplicationUserId = Guid.NewGuid()};
+            var command = new AddUsageItemCommand { ApplicationEventId = 1, ApplicationUserId = Guid.NewGuid()};
 
             // Act
-            var result = await Mediator.Send(new AddUsageItemCommand {UsageItemDTO = item});
+            var result = await Mediator.Send(command);
 
             //Assert
             Assert.True(result.IsFailure);
@@ -34,10 +34,10 @@ namespace EA.UsageTracking.Tests.Integration.Usage
             DbContext.Applications.Add(app);
             DbContext.SaveChanges();
 
-            var item = new UsageItemDTO { ApplicationId = app.Id, ApplicationEventId = 1, ApplicationUserId = Guid.NewGuid() };
+            var command = new AddUsageItemCommand { ApplicationEventId = 1, ApplicationUserId = Guid.NewGuid() };
 
             // Act
-            var result = await Mediator.Send(new AddUsageItemCommand() { UsageItemDTO = item });
+            var result = await Mediator.Send(command);
 
             //Assert
             Assert.True(result.IsFailure);
@@ -54,10 +54,10 @@ namespace EA.UsageTracking.Tests.Integration.Usage
             DbContext.ApplicationEvents.Add(ev);
             DbContext.SaveChanges();
 
-            var item = new UsageItemDTO {ApplicationId = app.Id, ApplicationEventId = ev.Id, ApplicationUserId = Guid.NewGuid()};
+            var command = new AddUsageItemCommand { ApplicationEventId = ev.Id, ApplicationUserId = Guid.NewGuid()};
 
             // Act
-            var result = await Mediator.Send(new AddUsageItemCommand() {UsageItemDTO = item});
+            var result = await Mediator.Send(command);
 
             //Assert
             Assert.True(result.IsFailure);
@@ -76,10 +76,10 @@ namespace EA.UsageTracking.Tests.Integration.Usage
             DbContext.ApplicationUsers.Add(user);
             DbContext.SaveChanges();
 
-            var item = new UsageItemDTO { ApplicationId = app.Id, ApplicationEventId = ev.Id, ApplicationUserId = user.Id };
+            var command = new AddUsageItemCommand { ApplicationEventId = ev.Id, ApplicationUserId = user.Id };
 
             // Act
-            var result = await Mediator.Send(new AddUsageItemCommand() { UsageItemDTO = item });
+            var result = await Mediator.Send(command);
 
             //Assert
             Assert.True(result.IsSuccess);

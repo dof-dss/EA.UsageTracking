@@ -3,10 +3,13 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 using System.Text;
+using System.Threading;
+using System.Threading.Tasks;
 using Autofac;
 using AutoMapper;
 using EA.UsageTracking.Core.Entities;
 using EA.UsageTracking.Infrastructure.Data;
+using EA.UsageTracking.Infrastructure.Features.Pagination;
 using EA.UsageTracking.SharedKernel;
 using EA.UsageTracking.SharedKernel.Constants;
 using MediatR;
@@ -22,13 +25,21 @@ namespace EA.UsageTracking.Tests.Integration
     {
         protected readonly UsageTrackingContext DbContext;
         protected readonly IMediator Mediator;
+        protected IContainer Container { get; set; }
 
-        public BaseIntegration()
+        protected IUsageTrackingContextFactory UsageTrackingContextFactory { get; }
+
+        public  BaseIntegration(): this(Guid.NewGuid())
+        { }
+
+        public BaseIntegration(Guid tenantGuid)
         {
             var builder = new ContainerBuilder();
 
             var mockAccessor = new Mock<IHttpContextAccessor>();
-            mockAccessor.Setup(x => x.HttpContext.Request.Headers[Constants.Tenant.TenantId]).Returns("b0ed668d-7ef2-4a23-a333-94ad278f45d7");
+            mockAccessor.Setup(x => x.HttpContext.Request.Headers[Constants.Tenant.TenantId]).Returns(tenantGuid.ToString());
+            mockAccessor.Setup(x => x.HttpContext.Request.Scheme).Returns("http");
+            mockAccessor.Setup(x => x.HttpContext.Request.Host).Returns(new HostString("test"));
             builder.RegisterInstance(mockAccessor.Object).As<IHttpContextAccessor>();
 
             var optionsBuilder = new DbContextOptionsBuilder<UsageTrackingContext>();
@@ -61,23 +72,24 @@ namespace EA.UsageTracking.Tests.Integration
 
             builder.Register(ctx => ctx.Resolve<MapperConfiguration>().CreateMapper()).As<IMapper>().InstancePerLifetimeScope();
 
+            builder.RegisterType<UriService>().As<IUriService>().SingleInstance();
+
             builder.RegisterAssemblyTypes(sharedKernelAssembly, coreAssembly, infrastructureAssembly).AsImplementedInterfaces();
 
-            var container = builder.Build();
-            Mediator = container.Resolve<IMediator>();
+            Container = builder.Build();
+            Mediator = Container.Resolve<IMediator>();
 
-            var usageTrackingContextFactory = container.Resolve<IUsageTrackingContextFactory>();
-            DbContext = usageTrackingContextFactory.UsageTrackingContext;
+            UsageTrackingContextFactory = Container.Resolve<IUsageTrackingContextFactory>();
+            DbContext = UsageTrackingContextFactory.UsageTrackingContext;
         }
 
         [TearDown]
         public void CleanUp()
         {
-            DbContext.PurgeTable<UsageItem,int>(DbContext.UsageItems);
-            DbContext.PurgeTable<ApplicationUser, Guid>(DbContext.ApplicationUsers);
-            DbContext.PurgeTable<ApplicationEvent,int>(DbContext.ApplicationEvents);
-            DbContext.PurgeTable<Core.Entities.Application, int>(DbContext.Applications);
-            DbContext.SaveChangesAsync().Wait();
+            DbContext.PurgeTable(DbContext.UsageItems);
+            DbContext.PurgeTable(DbContext.ApplicationUsers);
+            DbContext.PurgeTable(DbContext.ApplicationEvents);
+            DbContext.PurgeTable(DbContext.Applications);
         }
     }
 }

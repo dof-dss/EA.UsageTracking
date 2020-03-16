@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace EA.UsageTracking.SharedKernel
+namespace EA.UsageTracking.SharedKernel.BaseEntity
 {
     public interface IBaseEntity
     {

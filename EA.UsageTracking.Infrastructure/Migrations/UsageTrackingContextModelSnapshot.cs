@@ -32,8 +32,7 @@ namespace EA.UsageTracking.Infrastructure.Migrations
                     b.Property<string>("Name")
                         .HasColumnType("longtext CHARACTER SET utf8mb4");
 
-                    b.Property<Guid>("_tenantId")
-                        .HasColumnName("TenantId")
+                    b.Property<Guid>("TenantId")
                         .HasColumnType("char(36)");
 
                     b.Property<bool>("isDeleted")
@@ -62,8 +61,7 @@ namespace EA.UsageTracking.Infrastructure.Migrations
                     b.Property<string>("Name")
                         .HasColumnType("longtext CHARACTER SET utf8mb4");
 
-                    b.Property<Guid>("_tenantId")
-                        .HasColumnName("TenantId")
+                    b.Property<Guid>("TenantId")
                         .HasColumnType("char(36)");
 
                     b.Property<bool>("isDeleted")
@@ -108,13 +106,13 @@ namespace EA.UsageTracking.Infrastructure.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("int");
 
-                    b.Property<int?>("ApplicationEventId")
+                    b.Property<int>("ApplicationEventId")
                         .HasColumnType("int");
 
-                    b.Property<int?>("ApplicationId")
+                    b.Property<int>("ApplicationId")
                         .HasColumnType("int");
 
-                    b.Property<Guid?>("ApplicationUserId")
+                    b.Property<Guid>("ApplicationUserId")
                         .HasColumnType("char(36)");
 
                     b.Property<DateTime>("DateCreated")
@@ -126,8 +124,7 @@ namespace EA.UsageTracking.Infrastructure.Migrations
                     b.Property<bool>("IsComplete")
                         .HasColumnType("tinyint(1)");
 
-                    b.Property<Guid>("_tenantId")
-                        .HasColumnName("TenantId")
+                    b.Property<Guid>("TenantId")
                         .HasColumnType("char(36)");
 
                     b.Property<bool>("isDeleted")
@@ -170,15 +167,21 @@ namespace EA.UsageTracking.Infrastructure.Migrations
                 {
                     b.HasOne("EA.UsageTracking.Core.Entities.ApplicationEvent", "ApplicationEvent")
                         .WithMany()
-                        .HasForeignKey("ApplicationEventId");
+                        .HasForeignKey("ApplicationEventId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
 
                     b.HasOne("EA.UsageTracking.Core.Entities.Application", "Application")
                         .WithMany()
-                        .HasForeignKey("ApplicationId");
+                        .HasForeignKey("ApplicationId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
 
                     b.HasOne("EA.UsageTracking.Core.Entities.ApplicationUser", "ApplicationUser")
                         .WithMany()
-                        .HasForeignKey("ApplicationUserId");
+                        .HasForeignKey("ApplicationUserId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
                 });
 
             modelBuilder.Entity("EA.UsageTracking.Core.Entities.UserToApplication", b =>

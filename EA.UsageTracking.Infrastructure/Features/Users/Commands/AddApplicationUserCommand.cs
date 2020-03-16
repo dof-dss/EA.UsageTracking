@@ -8,11 +8,15 @@ using AutoMapper;
 using EA.UsageTracking.Core.DTOs;
 using EA.UsageTracking.Core.Entities;
 using EA.UsageTracking.Infrastructure.Data;
+using EA.UsageTracking.Infrastructure.Features.Common;
 using EA.UsageTracking.Infrastructure.Features.Events.Commands;
+using EA.UsageTracking.Infrastructure.Features.Users.Validation;
 using EA.UsageTracking.SharedKernel;
 using EA.UsageTracking.SharedKernel.Constants;
 using EA.UsageTracking.SharedKernel.Extensions;
+using EA.UsageTracking.SharedKernel.Functional;
 using MediatR;
+using Microsoft.EntityFrameworkCore;
 
 namespace EA.UsageTracking.Infrastructure.Features.Users.Commands
 {
@@ -21,31 +25,65 @@ namespace EA.UsageTracking.Infrastructure.Features.Users.Commands
         public ApplicationUserDTO ApplicationUserDto { get; set; }
     }
 
-    public class AddApplicationUserCommandHandler : IRequestHandler<AddApplicationUserCommand, Result<ApplicationUserDTO>>
+    public class AddApplicationUserCommandHandler : AsyncBaseHandler<AddApplicationUserCommand>, IRequestHandler<AddApplicationUserCommand, Result<ApplicationUserDTO>>
     {
-        private readonly UsageTrackingContext _dbContext;
-        private readonly IMapper _mapper;
+        private ApplicationUser _applicationUser;
+        private readonly AddApplicationUserCommandValidator _validator;
 
-        public AddApplicationUserCommandHandler(IUsageTrackingContextFactory usageTrackingContextFactory, IMapper mapper)
+        public AddApplicationUserCommandHandler(IUsageTrackingContextFactory usageTrackingContextFactory, IMapper mapper):
+            base(usageTrackingContextFactory, mapper)
         {
-            _dbContext = usageTrackingContextFactory.UsageTrackingContext;
-            _mapper = mapper;
+            _validator = new AddApplicationUserCommandValidator();
         }
 
+        /// <summary>
+        /// If user exists then associate application to them, if not already associated.
+        /// If user does not exist, create and associate application to them.
+        /// </summary>
+        /// <param name="request"></param>
+        /// <param name="cancellationToken"></param>
+        /// <returns></returns>
         public async Task<Result<ApplicationUserDTO>> Handle(AddApplicationUserCommand request, CancellationToken cancellationToken)
         {
-            var applicationResult = _dbContext.Applications.SingleOrDefault().ToMaybe().ToResult(Constants.ErrorMessages.NoTenantExists);
-            if (applicationResult.IsFailure)
-                return Result.Fail<ApplicationUserDTO>(applicationResult.Error);
+            var validationResults = Validate(request);
+            if (validationResults.IsFailure)
+                return Result.Fail<ApplicationUserDTO>(validationResults.Error);
 
-            var applicationUser = _mapper.Map<ApplicationUser>(request.ApplicationUserDto);
-            applicationUser.UserToApplications.Add(new UserToApplication
-                {User = applicationUser, Application = applicationResult.Value});
+            var application = DbContext.Applications.Single();
+            _applicationUser = Mapper.Map<ApplicationUser>(request.ApplicationUserDto);
 
-            _dbContext.ApplicationUsers.Add(applicationUser);
-            await _dbContext.SaveChangesAsync(cancellationToken);
+            DbContext.ApplicationUsers
+                .Include(x => x.UserToApplications)
+                .SingleOrDefault(u => u.Id == _applicationUser.Id)
+                .ToMaybe()
+                .Match(au => AssociateAppToUser(au, application),  
+                    () => AddUserAndAssociateApp(application));
 
-            return Result.Ok(_mapper.Map<ApplicationUserDTO>(applicationUser));
+            await DbContext.SaveChangesAsync(cancellationToken);
+
+            return Result.Ok(Mapper.Map<ApplicationUserDTO>(_applicationUser));
+        }
+
+        private void AddUserAndAssociateApp(Application application)
+        {
+            _applicationUser.UserToApplications.Add(new UserToApplication
+                { User = _applicationUser, Application =  application });
+
+            DbContext.ApplicationUsers.Add(_applicationUser);
+        }
+
+        private void AssociateAppToUser(ApplicationUser au, Application application)
+        {
+            if (au.UserToApplications.All(x => x.ApplicationId != application.Id))
+                    au.UserToApplications.Add(new UserToApplication
+                        { User = au, Application = application });
+            _applicationUser = au;
+        }
+
+        protected override Result CustomValidate(AddApplicationUserCommand request)
+        {
+            var validationResults = _validator.Validate(request);
+            return !validationResults.IsValid ? Result.Fail(validationResults.ToString(",")) : Result.Ok();
         }
     }
 }

@@ -1,4 +1,6 @@
-﻿using System.Threading.Tasks;
+﻿using System;
+using System.Threading.Tasks;
+using EA.UsageTracking.Core.DTOs;
 using EA.UsageTracking.Core.Entities;
 using EA.UsageTracking.Infrastructure.Features.Events.Commands;
 using EA.UsageTracking.Infrastructure.Features.Events.Queries;
@@ -46,12 +48,12 @@ namespace EA.UsageTracking.Tests.Integration.Events
             // Arrange
             var app = new Core.Entities.Application();
             DbContext.Applications.Add(app);
-            var ev = new ApplicationEvent();
-            DbContext.ApplicationEvents.Add(ev);
             DbContext.SaveChanges();
+            var item = new ApplicationEventDTO() { Name = "Test event" };
 
             // Act
-            var result = await Mediator.Send(new DeleteApplicationEventCommand { Id = 1 });
+            var addResult = await Mediator.Send(new AddApplicationEventCommand() { ApplicationEventDto = item });
+            var result = await Mediator.Send(new DeleteApplicationEventCommand { Id = addResult.Value.Id });
             var getResult = await Mediator.Send(new GetEventDetailsForApplicationQuery { Id = 1 });
 
             //Assert
@@ -66,12 +68,13 @@ namespace EA.UsageTracking.Tests.Integration.Events
             // Arrange
             var app = new Core.Entities.Application();
             DbContext.Applications.Add(app);
-            var ev = new ApplicationEvent();
-            DbContext.ApplicationEvents.Add(ev);
             DbContext.SaveChanges();
 
+            var item = new ApplicationEventDTO() { Name = "Test event" };
+
             // Act
-            var result = await Mediator.Send(new DeleteApplicationEventCommand { Id = 1 });
+            var addResult = await Mediator.Send(new AddApplicationEventCommand() { ApplicationEventDto = item });
+            var result = await Mediator.Send(new DeleteApplicationEventCommand { Id = addResult.Value.Id });
             var deletedEvent = await DbContext.ApplicationEvents.IgnoreQueryFilters().SingleOrDefaultAsync(x => x.Id == 1);
 
             //Assert

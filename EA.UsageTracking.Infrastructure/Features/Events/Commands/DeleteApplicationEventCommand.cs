@@ -6,11 +6,14 @@ using System.Threading;
 using System.Threading.Tasks;
 using AutoMapper;
 using EA.UsageTracking.Core.DTOs;
+using EA.UsageTracking.Core.Entities;
 using EA.UsageTracking.Infrastructure.Data;
 using EA.UsageTracking.Infrastructure.Features.Common;
+using EA.UsageTracking.Infrastructure.Features.Users.Validation;
 using EA.UsageTracking.SharedKernel;
 using EA.UsageTracking.SharedKernel.Constants;
 using EA.UsageTracking.SharedKernel.Extensions;
+using EA.UsageTracking.SharedKernel.Functional;
 using MediatR;
 
 namespace EA.UsageTracking.Infrastructure.Features.Events.Commands
@@ -20,30 +23,29 @@ namespace EA.UsageTracking.Infrastructure.Features.Events.Commands
         public int Id { get; set; }
     }
 
-    public class DeleteApplicationEventCommandHandler : AsyncBaseHandler, IRequestHandler<DeleteApplicationEventCommand, Result>
+    public class DeleteApplicationEventCommandHandler : AsyncBaseHandler<DeleteApplicationEventCommand>, IRequestHandler<DeleteApplicationEventCommand, Result>
     {
-        public DeleteApplicationEventCommandHandler(IUsageTrackingContextFactory usageTrackingContextFactory, IMapper mapper) :
+        public DeleteApplicationEventCommandHandler(IUsageTrackingContextFactory usageTrackingContextFactory,
+            IMapper mapper) :
             base(usageTrackingContextFactory, mapper)
         {}
 
         public async Task<Result> Handle(DeleteApplicationEventCommand request, CancellationToken cancellationToken)
         {
-            var applicationResult = DbContext.Applications.SingleOrDefault()
-                .ToMaybe().ToResult(Constants.ErrorMessages.NoTenantExists);
+            var validateResults = Validate(request);
+            if (validateResults.IsFailure)
+                return Result.Fail(validateResults.Error);
 
-            var applicationEventResult = DbContext.ApplicationEvents
-                .SingleOrDefault(x => x.Id == request.Id)
-                .ToMaybe().ToResult(Constants.ErrorMessages.NoEventExists);
-
-            var combinedResults = Result.Combine(applicationResult, applicationEventResult);
-            if (combinedResults.IsFailure)
-                return Result.Fail(combinedResults.Error);
-
-            DbContext.ApplicationEvents.Remove(applicationEventResult.Value);
+            var applicationEvent = new ApplicationEvent {Id = request.Id};
+            DbContext.ApplicationEvents.Remove(applicationEvent);
 
             await DbContext.SaveChangesAsync();
 
             return Result.Ok();
         }
+
+        protected override Result CustomValidate(DeleteApplicationEventCommand request) => 
+            DbContext.ApplicationEvents
+                .Any(x => x.Id == request.Id) ? Result.Ok() : Result.Fail(Constants.ErrorMessages.NoEventExists);
     }
 }

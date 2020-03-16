@@ -1,10 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using NullGuard;
 
-namespace EA.UsageTracking.SharedKernel
+namespace EA.UsageTracking.SharedKernel.Functional
 {
     public struct Maybe<T>
     {

@@ -1,9 +1,7 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Text;
 using NullGuard;
 
-namespace EA.UsageTracking.SharedKernel
+namespace EA.UsageTracking.SharedKernel.Functional
 {
     public class Result
     {

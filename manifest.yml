@@ -5,4 +5,5 @@ applications:
   - dotnet_core_buildpack
   memory: 256M
   services:
-  - usage-tracking
+  - usageTrackingService
+  - usage-tracking-redis

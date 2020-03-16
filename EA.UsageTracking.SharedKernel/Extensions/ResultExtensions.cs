@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Text;
+using EA.UsageTracking.SharedKernel.Functional;
 
 namespace EA.UsageTracking.SharedKernel.Extensions
 {
@@ -51,6 +52,16 @@ namespace EA.UsageTracking.SharedKernel.Extensions
             return result;
         }
 
+        public static Result<T> OnFailure<T>(this Result<T> result, Action<T> action)
+        {
+            if (result.IsFailure)
+            {
+                action(result.Value);
+            }
+
+            return result;
+        }
+
         public static T OnBoth<T>(this Result result, Func<Result, T> func)
         {
             return func(result);
@@ -64,6 +75,15 @@ namespace EA.UsageTracking.SharedKernel.Extensions
         public static Result OnSuccess(this Result result, Action action)
         {
             if (result.IsSuccess)
+            {
+                action();
+            }
+
+            return result;
+        }
+        public static Result OnFailure(this Result result, Action action)
+        {
+            if (result.IsFailure)
             {
                 action();
             }

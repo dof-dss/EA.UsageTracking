@@ -1,14 +1,23 @@
-﻿using System.ComponentModel.DataAnnotations;
+﻿using System;
+using System.ComponentModel.DataAnnotations;
+using System.Net;
+using System.Text;
 using System.Threading.Tasks;
 using EA.UsageTracking.Application.API.Attributes;
 using EA.UsageTracking.Core.DTOs;
 using EA.UsageTracking.Infrastructure.Data;
 using EA.UsageTracking.Infrastructure.Features.Usages.Commands;
 using EA.UsageTracking.Infrastructure.Features.Usages.Queries;
+using EA.UsageTracking.SharedKernel.Constants;
 using EA.UsageTracking.SharedKernel.Extensions;
 using MediatR;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore.Internal;
+using Microsoft.Extensions.Caching.Distributed;
+using Microsoft.Extensions.Caching.StackExchangeRedis;
+using Newtonsoft.Json;
+using StackExchange.Redis;
 
 namespace EA.UsageTracking.Application.API.Controllers
 {
@@ -18,11 +27,16 @@ namespace EA.UsageTracking.Application.API.Controllers
     {
         private readonly UsageTrackingContext _usageTrackingContext;
         private readonly IMediator _mediator;
+        private  readonly IConnectionMultiplexer _connectionMultiplexer;
+        private readonly HttpContext _httpContext;
 
-        public ApplicationUsageController(IUsageTrackingContextFactory usageTrackingContextFactory, IMediator mediator)
+        public ApplicationUsageController(IUsageTrackingContextFactory usageTrackingContextFactory, IMediator mediator, 
+            IConnectionMultiplexer connectionMultiplexer, IHttpContextAccessor httpContextAccessor)
         {
             _usageTrackingContext = usageTrackingContextFactory.UsageTrackingContext;
             _mediator = mediator;
+            _connectionMultiplexer = connectionMultiplexer;
+            _httpContext = httpContextAccessor.HttpContext;
         }
 
         [HttpGet]
@@ -47,17 +61,22 @@ namespace EA.UsageTracking.Application.API.Controllers
 
 
         [HttpPost]
-        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status201Created)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
-        public async Task<IActionResult> Post([FromBody] UsageItemDTO item) =>
-            (await _mediator.Send(new AddUsageItemCommand{UsageItemDTO = item}))
-                .OnBoth(r => r.IsSuccess ? (IActionResult) Ok(r.Value): BadRequest(r.Error));
-        
+        public async Task<IActionResult> Post([FromBody] AddUsageItemCommand command)
+        {
+            command.TenantId = Guid.Parse(_httpContext.Request.Headers[Constants.Tenant.TenantId].ToString());
+            var publisher = _connectionMultiplexer.GetSubscriber();
+            await publisher.PublishAsync("Usage", JsonConvert.SerializeObject(command), CommandFlags.FireAndForget);
+
+            return StatusCode(201);
+        }
+
         [HttpPost("seed")] 
         [ApiExplorerSettings(IgnoreApi = true)]
         public IActionResult Seed()
         {
-            SeedData.PopulateTestData(_usageTrackingContext);
+            new SeedData(_usageTrackingContext).PopulateTestData();
             return Ok();
         }
 

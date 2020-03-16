@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Text;
 using EA.UsageTracking.SharedKernel;
+using EA.UsageTracking.SharedKernel.BaseEntity;
 
 namespace EA.UsageTracking.Core.Entities
 {

@@ -5,9 +5,11 @@ using System.Threading.Tasks;
 using AutoMapper;
 using EA.UsageTracking.Core.DTOs;
 using EA.UsageTracking.Infrastructure.Data;
+using EA.UsageTracking.Infrastructure.Features.Common;
 using EA.UsageTracking.SharedKernel;
 using EA.UsageTracking.SharedKernel.Constants;
 using EA.UsageTracking.SharedKernel.Extensions;
+using EA.UsageTracking.SharedKernel.Functional;
 using MediatR;
 using Microsoft.EntityFrameworkCore;
 
@@ -18,27 +20,32 @@ namespace EA.UsageTracking.Infrastructure.Features.Events.Queries
         public int Id { get; set; }
     }
 
-    public class GetEventDetailsForApplicationQueryHandler : IRequestHandler<GetEventDetailsForApplicationQuery, Result<ApplicationEventDTO>>
+    public class GetEventDetailsForApplicationQueryHandler :
+        AsyncBaseHandler<GetEventDetailsForApplicationQuery>, IRequestHandler<GetEventDetailsForApplicationQuery, Result<ApplicationEventDTO>>
     {
-        private readonly UsageTrackingContext _dbContext;
-        private readonly IMapper _mapper;
 
         public GetEventDetailsForApplicationQueryHandler(IUsageTrackingContextFactory dbContextFactory, IMapper mapper)
+        : base(dbContextFactory, mapper)
         {
-            _dbContext = dbContextFactory.UsageTrackingContext;
-            _mapper = mapper;
         }
 
         public async Task<Result<ApplicationEventDTO>> Handle(GetEventDetailsForApplicationQuery request, CancellationToken cancellationToken)
         {
-            var result = await _dbContext.ApplicationEvents
-                .AsNoTracking()
-                .SingleOrDefaultAsync(x => x.Id == request.Id, cancellationToken: cancellationToken);
+            var validationResults = Validate(request);
+            if (validationResults.IsFailure)
+                return Result.Fail<ApplicationEventDTO>(validationResults.Error);
 
-            return result.ToMaybe().ToResult(Constants.ErrorMessages.NoEventExists)
-                .OnBoth(i => i.IsSuccess
-                    ? Result.Ok(_mapper.Map<ApplicationEventDTO>( i.Value))
-                    : Result.Fail<ApplicationEventDTO>(i.Error));
+            var applicationEvent = await DbContext.ApplicationEvents
+                .AsNoTracking()
+                .SingleAsync(x => x.Id == request.Id, cancellationToken: cancellationToken);
+
+            return Result.Ok(Mapper.Map<ApplicationEventDTO>(applicationEvent));
         }
+
+        protected override Result CustomValidate(GetEventDetailsForApplicationQuery request) =>
+            DbContext.ApplicationEvents
+                .Any(x => x.Id == request.Id)
+                ? Result.Ok()
+                : Result.Fail(Constants.ErrorMessages.NoEventExists);
     }
 }

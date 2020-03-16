@@ -7,8 +7,11 @@ using AutoMapper;
 using EA.UsageTracking.Core.Entities;
 using EA.UsageTracking.Infrastructure.Behaviors;
 using EA.UsageTracking.Infrastructure.Data;
+using EA.UsageTracking.Infrastructure.Features.Pagination;
+using EA.UsageTracking.Infrastructure.Features.Usages.Commands;
 using EA.UsageTracking.SharedKernel;
 using EA.UsageTracking.SharedKernel.Constants;
+using EA.UsageTracking.SharedKernel.Functional;
 using MediatR;
 using MediatR.Pipeline;
 using Microsoft.Extensions.DependencyInjection;
@@ -32,8 +35,12 @@ namespace EA.UsageTracking.Infrastructure
             var infrastructureAssembly = Assembly.GetAssembly(typeof(UsageTrackingContext));
             var sharedKernelAssembly = Assembly.GetAssembly(typeof(Constants));
 
+            //builder.RegisterType<AddUsageItemCommandHandler>().As<IRequestHandler<AddUsageItemCommand, Result<int>>>();
+            //builder.RegisterDecorator<AddUsageItemCommandHandlerDecorator, IRequestHandler<AddUsageItemCommand, Result<int>>>();
+
             builder.RegisterType<Mediator>().As<IMediator>().InstancePerLifetimeScope();
-            builder.RegisterType<UsageTrackingContextFactory>().As<IUsageTrackingContextFactory>();
+            builder.RegisterType<UsageTrackingContextFactory>().As<IUsageTrackingContextFactory>().InstancePerLifetimeScope();
+            builder.RegisterType<UriService>().As<IUriService>().SingleInstance();
 
             builder.Register<ServiceFactory>(context =>
             {

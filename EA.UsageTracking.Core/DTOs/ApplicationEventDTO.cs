@@ -9,13 +9,5 @@ namespace EA.UsageTracking.Core.DTOs
     {
         public int Id { get; set; }
         public string Name { get; set; }
-        public static ApplicationEventDTO FromApplicationEvent(ApplicationEvent @event)
-        {
-            return new ApplicationEventDTO
-            {
-                Id = @event.Id,
-                Name = @event.Name
-            };
-        }
     }
 }

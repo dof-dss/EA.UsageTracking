@@ -32,7 +32,7 @@ namespace EA.UsageTracking.Tests.Integration.Events
             // Arrange
             var app = new Core.Entities.Application();
             DbContext.Applications.Add(app);
-            DbContext.SaveChanges();
+            await DbContext.SaveChangesAsync();
 
             // Act
             var result = await Mediator.Send(new UpdateApplicationEventCommand() { ApplicationEventDto = new ApplicationEventDTO(){Id = 1} });
@@ -49,20 +49,19 @@ namespace EA.UsageTracking.Tests.Integration.Events
             // Arrange
             var app = new Core.Entities.Application();
             DbContext.Applications.Add(app);
-            var ev = new ApplicationEvent(){Name = "Test Event"};
-            DbContext.ApplicationEvents.Add(ev);
-            DbContext.SaveChanges();
-
-            var item = new ApplicationEventDTO() {Id= 1, Name = "Test Event Updated" };
+            await DbContext.SaveChangesAsync();
+            var originalEvent = new ApplicationEventDTO() { Name = "Test event" };
+            var addResult = await Mediator.Send(new AddApplicationEventCommand() { ApplicationEventDto = originalEvent });
+            var updateEvent = new ApplicationEventDTO() {Id= addResult.Value.Id, Name = "Test Event Updated" };
 
             // Act
-            var result = await Mediator.Send(new UpdateApplicationEventCommand() { ApplicationEventDto = item });
-            var getResult = await Mediator.Send(new GetEventDetailsForApplicationQuery { Id = 1 });
+            var result = await Mediator.Send(new UpdateApplicationEventCommand() { ApplicationEventDto = updateEvent });
+            var getResult = await Mediator.Send(new GetEventDetailsForApplicationQuery { Id = result.Value.Id });
 
             //Assert
             Assert.True(result.IsSuccess);
             Assert.True(getResult.IsSuccess);
-            Assert.AreEqual(item.Name, getResult.Value.Name);
+            Assert.AreEqual(updateEvent.Name, getResult.Value.Name);
         }
 
     }
