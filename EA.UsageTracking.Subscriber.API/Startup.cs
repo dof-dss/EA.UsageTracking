@@ -39,7 +39,7 @@ namespace EA.UsageTracking.Subscriber.API
             services.AddAutoMapper(Assembly.GetAssembly(typeof(UsageTrackingContext)));
 
             Action<MySqlDbContextOptionsBuilder> mySqlOptionsAction = (o) =>
-                o.EnableRetryOnFailure(maxRetryCount: 15, maxRetryDelay: TimeSpan.FromSeconds(60), null);
+                o.EnableRetryOnFailure(maxRetryCount: 5, maxRetryDelay: TimeSpan.FromSeconds(10), null);
             services.AddDbContext<UsageTrackingContext>(options => options.UseMySql(Configuration, mySqlOptionsAction));
 
             services.AddRedisConnectionMultiplexer(Configuration);

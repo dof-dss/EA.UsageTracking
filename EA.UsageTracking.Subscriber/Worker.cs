@@ -28,14 +28,14 @@ namespace EA.UsageTracking.Subscriber
 
         protected override async Task ExecuteAsync(CancellationToken stoppingToken)
         {
-            var sub = _connectionMultiplexer.GetSubscriber();
-            await sub.SubscribeAsync("Usage", async (channel, value) =>
+            var redisChannel = _connectionMultiplexer.GetSubscriber().Subscribe("Usage");
+            redisChannel.OnMessage(message =>
             {
-                _logger.LogInformation($"{DateTime.Now:yyyyMMdd HH:mm:ss}<{value.ToString()}>.");
+                _logger.LogInformation($"{DateTime.Now:yyyyMMdd HH:mm:ss}<{message.Message.ToString()}>.");
 
-                var command = JsonConvert.DeserializeObject<AddUsageItemCommand>(value);
+                var command = JsonConvert.DeserializeObject<AddUsageItemCommand>(message.Message);
 
-                await _mediator.Send(command, stoppingToken);
+                _mediator.Send(command, stoppingToken);
             });
         }
     }
