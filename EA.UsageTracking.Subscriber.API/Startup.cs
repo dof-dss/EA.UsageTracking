@@ -4,8 +4,11 @@ using System.Linq;
 using System.Reflection;
 using System.Threading.Tasks;
 using AutoMapper;
+using EA.UsageTracking.Core.Entities;
+using EA.UsageTracking.Infrastructure.Behaviors;
 using EA.UsageTracking.Infrastructure.Data;
 using EA.UsageTracking.Infrastructure.Features.Pagination;
+using EA.UsageTracking.SharedKernel.Functional;
 using MediatR;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
@@ -36,24 +39,27 @@ namespace EA.UsageTracking.Subscriber.API
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
         {
-            services.AddAutoMapper(Assembly.GetAssembly(typeof(UsageTrackingContext)));
+            services.AddHostedService<Worker>();
+            services.AddControllers();
 
             Action<MySqlDbContextOptionsBuilder> mySqlOptionsAction = (o) =>
                 o.EnableRetryOnFailure(maxRetryCount: 5, maxRetryDelay: TimeSpan.FromSeconds(10), null);
             services.AddDbContext<UsageTrackingContext>(options => options.UseMySql(Configuration, mySqlOptionsAction));
 
-            services.AddRedisConnectionMultiplexer(Configuration);
-            services.AddTransient<IUsageTrackingContextFactory, UsageTrackingContextFactory>();
+            services.AddAutoMapper(typeof(UsageTrackingContext).GetTypeInfo().Assembly);
+
+            services.AddMediatR(typeof(Startup).GetTypeInfo().Assembly,
+                typeof(UsageTrackingContext).GetTypeInfo().Assembly,
+                typeof(Result).GetTypeInfo().Assembly,
+                typeof(UsageItem).GetTypeInfo().Assembly);
+
             services.AddSingleton<IHttpContextAccessor, HttpContextAccessor>();
+            services.AddRedisConnectionMultiplexer(Configuration);
+
             services.AddSingleton<IUriService, UriService>();
-            services.TryAddSingleton(sp =>
-            {
-                var builder = new DbContextOptionsBuilder<UsageTrackingContext>();
-                return builder.UseMySql(Configuration).Options;
-            });
-            services.AddMediatR(typeof(Worker), typeof(UsageTrackingContext));
-            services.AddHostedService<Worker>();
-            services.AddControllers();
+            services.AddTransient(typeof(IPipelineBehavior<,>), typeof(LoggingBehavior<,>));
+            services.AddTransient(typeof(IPipelineBehavior<,>), typeof(ExceptionBehavior<,>));
+            services.AddTransient<IUsageTrackingContextFactory, UsageTrackingContextFactory>();
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.

@@ -33,7 +33,7 @@ namespace EA.UsageTracking.Subscriber
             {
                 _logger.LogInformation($"{DateTime.Now:yyyyMMdd HH:mm:ss}<{message.Message.ToString()}>.");
 
-                var command = JsonConvert.DeserializeObject<AddUsageItemCommand>(message.Message);
+                var command = JsonConvert.DeserializeObject<AddUsageItemSubscriberCommand>(message.Message);
 
                 _mediator.Send(command, stoppingToken);
             });

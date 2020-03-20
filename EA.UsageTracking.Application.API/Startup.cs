@@ -3,9 +3,15 @@ using System.Collections.Generic;
 using System.Reflection;
 using System.Text;
 using Ardalis.ListStartupServices;
+using AutoMapper;
 using EA.UsageTracking.Application.API.ActionFilters;
+using EA.UsageTracking.Core.Entities;
 using EA.UsageTracking.Infrastructure;
+using EA.UsageTracking.Infrastructure.Behaviors;
 using EA.UsageTracking.Infrastructure.Data;
+using EA.UsageTracking.Infrastructure.Features.Pagination;
+using EA.UsageTracking.SharedKernel.Functional;
+using MediatR;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
@@ -32,7 +38,7 @@ namespace EA.UsageTracking.Application.API
         public IConfiguration Configuration { get; }
 
         // This method gets called by the runtime. Use this method to add services to the container.
-        public IServiceProvider ConfigureServices(IServiceCollection services)
+        public void ConfigureServices(IServiceCollection services)
         {
             services.AddControllers();
             services.AddMvc()
@@ -41,6 +47,12 @@ namespace EA.UsageTracking.Application.API
                     options.Conventions.AddPageRoute("/robotstxt", "/Robots.Txt");
                 });
 
+            services.AddAutoMapper(typeof(UsageTrackingContext).GetTypeInfo().Assembly);
+            services.AddMediatR(typeof(Startup).GetTypeInfo().Assembly, 
+                typeof(UsageTrackingContext).GetTypeInfo().Assembly,
+                typeof(Result).GetTypeInfo().Assembly,
+                typeof(UsageItem).GetTypeInfo().Assembly);
+
             ConfigureUsageTrackingContext(services);
             ConfigureSwagger(services);
             ConfigureServiceDescription(services);
@@ -48,7 +60,10 @@ namespace EA.UsageTracking.Application.API
             services.AddDistributedRedisCache(Configuration);
             services.AddRedisConnectionMultiplexer(Configuration);
 
-            return ContainerSetup.InitializeWeb(Assembly.GetExecutingAssembly(), services);
+            services.AddSingleton<IUriService, UriService>();
+            services.AddTransient(typeof(IPipelineBehavior<,>), typeof(LoggingBehavior<,>));
+            services.AddTransient(typeof(IPipelineBehavior<,>), typeof(ExceptionBehavior<,>));
+            services.AddTransient<IUsageTrackingContextFactory, UsageTrackingContextFactory>();
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.

@@ -32,7 +32,8 @@ namespace EA.UsageTracking.Infrastructure.Migrations
                     b.Property<string>("Name")
                         .HasColumnType("longtext CHARACTER SET utf8mb4");
 
-                    b.Property<Guid>("TenantId")
+                    b.Property<string>("TenantId")
+                        .IsRequired()
                         .HasColumnType("char(36)");
 
                     b.Property<bool>("isDeleted")
@@ -61,7 +62,8 @@ namespace EA.UsageTracking.Infrastructure.Migrations
                     b.Property<string>("Name")
                         .HasColumnType("longtext CHARACTER SET utf8mb4");
 
-                    b.Property<Guid>("TenantId")
+                    b.Property<string>("TenantId")
+                        .IsRequired()
                         .HasColumnType("char(36)");
 
                     b.Property<bool>("isDeleted")
@@ -76,7 +78,7 @@ namespace EA.UsageTracking.Infrastructure.Migrations
 
             modelBuilder.Entity("EA.UsageTracking.Core.Entities.ApplicationUser", b =>
                 {
-                    b.Property<Guid>("Id")
+                    b.Property<string>("Id")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("char(36)");
 
@@ -112,7 +114,8 @@ namespace EA.UsageTracking.Infrastructure.Migrations
                     b.Property<int>("ApplicationId")
                         .HasColumnType("int");
 
-                    b.Property<Guid>("ApplicationUserId")
+                    b.Property<string>("ApplicationUserId")
+                        .IsRequired()
                         .HasColumnType("char(36)");
 
                     b.Property<DateTime>("DateCreated")
@@ -124,7 +127,8 @@ namespace EA.UsageTracking.Infrastructure.Migrations
                     b.Property<bool>("IsComplete")
                         .HasColumnType("tinyint(1)");
 
-                    b.Property<Guid>("TenantId")
+                    b.Property<string>("TenantId")
+                        .IsRequired()
                         .HasColumnType("char(36)");
 
                     b.Property<bool>("isDeleted")
@@ -143,7 +147,7 @@ namespace EA.UsageTracking.Infrastructure.Migrations
 
             modelBuilder.Entity("EA.UsageTracking.Core.Entities.UserToApplication", b =>
                 {
-                    b.Property<Guid>("UserId")
+                    b.Property<string>("UserId")
                         .HasColumnType("char(36)");
 
                     b.Property<int>("ApplicationId")

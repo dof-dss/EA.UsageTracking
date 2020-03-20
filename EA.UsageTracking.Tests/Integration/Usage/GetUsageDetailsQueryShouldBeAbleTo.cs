@@ -23,7 +23,7 @@ namespace EA.UsageTracking.Tests.Integration.Usage
             DbContext.ApplicationUsers.Add(user);
             DbContext.SaveChanges();
 
-            var command = new AddUsageItemCommand { ApplicationEventId = ev.Id, ApplicationUserId = user.Id };
+            var command = new AddUsageItemSubscriberCommand { ApplicationEventId = ev.Id, ApplicationUserId = user.Id, TenantId = DbContext.TenantId};
 
             //Act
             var addResult = await Mediator.Send(command);

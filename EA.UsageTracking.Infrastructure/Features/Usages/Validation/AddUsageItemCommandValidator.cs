@@ -7,7 +7,7 @@ using FluentValidation;
 
 namespace EA.UsageTracking.Infrastructure.Features.Usages.Validation
 {
-    public class AddUsageItemCommandValidator: AbstractValidator<AddUsageItemCommand>
+    public class AddUsageItemCommandValidator: AbstractValidator<AddUsageItemSubscriberCommand>
     {
         public AddUsageItemCommandValidator()
         {

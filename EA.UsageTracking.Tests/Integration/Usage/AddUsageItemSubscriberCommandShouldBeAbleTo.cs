@@ -9,14 +9,14 @@ using NUnit.Framework;
 namespace EA.UsageTracking.Tests.Integration.Usage
 {
     [TestFixture]
-    class AddUsageItemCommandShouldBeAbleTo: BaseIntegration
+    class AddUsageItemSubscriberCommandShouldBeAbleTo: BaseIntegration
     {
 
         [Test]
         public async Task HandleAddUsageItemWithNoApplication()
         {
             // Arrange
-            var command = new AddUsageItemCommand { ApplicationEventId = 1, ApplicationUserId = Guid.NewGuid()};
+            var command = new AddUsageItemSubscriberCommand { ApplicationEventId = 1, ApplicationUserId = Guid.NewGuid()};
 
             // Act
             var result = await Mediator.Send(command);
@@ -32,9 +32,11 @@ namespace EA.UsageTracking.Tests.Integration.Usage
             // Arrange
             var app = new Core.Entities.Application();
             DbContext.Applications.Add(app);
+            var user = new ApplicationUser() { Id = Guid.NewGuid() };
+            DbContext.ApplicationUsers.Add(user);
             DbContext.SaveChanges();
 
-            var command = new AddUsageItemCommand { ApplicationEventId = 1, ApplicationUserId = Guid.NewGuid() };
+            var command = new AddUsageItemSubscriberCommand { ApplicationEventId = 1, ApplicationUserId = user.Id, TenantId = DbContext.TenantId };
 
             // Act
             var result = await Mediator.Send(command);
@@ -54,7 +56,7 @@ namespace EA.UsageTracking.Tests.Integration.Usage
             DbContext.ApplicationEvents.Add(ev);
             DbContext.SaveChanges();
 
-            var command = new AddUsageItemCommand { ApplicationEventId = ev.Id, ApplicationUserId = Guid.NewGuid()};
+            var command = new AddUsageItemSubscriberCommand { ApplicationEventId = ev.Id, ApplicationUserId = Guid.NewGuid(), TenantId = DbContext.TenantId };
 
             // Act
             var result = await Mediator.Send(command);
@@ -76,7 +78,7 @@ namespace EA.UsageTracking.Tests.Integration.Usage
             DbContext.ApplicationUsers.Add(user);
             DbContext.SaveChanges();
 
-            var command = new AddUsageItemCommand { ApplicationEventId = ev.Id, ApplicationUserId = user.Id };
+            var command = new AddUsageItemSubscriberCommand { ApplicationEventId = ev.Id, ApplicationUserId = user.Id, TenantId = DbContext.TenantId};
 
             // Act
             var result = await Mediator.Send(command);

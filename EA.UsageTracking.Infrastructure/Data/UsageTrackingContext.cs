@@ -32,7 +32,6 @@ namespace EA.UsageTracking.Infrastructure.Data
         public DbSet<ApplicationEvent> ApplicationEvents { get; set; }
         public DbSet<UsageItem> UsageItems { get; set; }
 
-
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             modelBuilder.Entity<ApplicationEvent>().Property<bool>("isDeleted");

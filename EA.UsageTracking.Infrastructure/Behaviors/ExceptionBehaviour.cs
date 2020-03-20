@@ -12,7 +12,7 @@ using Microsoft.Extensions.Logging;
 
 namespace EA.UsageTracking.Infrastructure.Behaviors
 {
-    public class ExceptionBehavior<TRequest, TResponse> : IPipelineBehavior<TRequest, Result<TResponse>>
+    public class ExceptionBehavior<TRequest, TResponse> : IPipelineBehavior<TRequest, TResponse>
     {
         private readonly ILogger<LoggingBehavior<TRequest, TResponse>> _logger;
 
@@ -21,17 +21,12 @@ namespace EA.UsageTracking.Infrastructure.Behaviors
             _logger = logger;
         }
 
-        public async Task<Result<TResponse>> Handle(TRequest request, CancellationToken cancellationToken, RequestHandlerDelegate<Result<TResponse>> next)
+        public async Task<TResponse> Handle(TRequest request, CancellationToken cancellationToken, RequestHandlerDelegate<TResponse> next)
         {
             try
             {
                 var response = await next();
                 return response;
-            }
-            catch (DbUpdateException ex)
-            {
-                _logger.LogError(ex, $"Exception at {typeof(TResponse).Name} of {typeof(TRequest).Name} at {DateTime.UtcNow:yyyy-MM-dd hh:mm:ss.fff}");
-                return Result.Fail<TResponse>(Constants.ErrorMessages.UpdateException);
             }
             catch (Exception ex)
             {

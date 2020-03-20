@@ -22,25 +22,26 @@ using Microsoft.Extensions.DependencyInjection;
 
 namespace EA.UsageTracking.Infrastructure.Features.Usages.Commands
 {
-    public class AddUsageItemCommand : IRequest<Result<int>>
+    public class AddUsageItemSubscriberCommand : IRequest<Result<int>>
     { 
         public Guid TenantId { get; set; }
+        public Guid RequestId { get; set; }
         public int ApplicationEventId { get; set; }
         public Guid ApplicationUserId { get; set; }
     }
 
-    public class AddUsageItemCommandHandler : IRequestHandler<AddUsageItemCommand, Result<int>>
+    public class AddUsageItemSubscriberCommandHandler : IRequestHandler<AddUsageItemSubscriberCommand, Result<int>>
     {
         private readonly AddUsageItemCommandValidator _validator;
         private readonly IServiceScopeFactory _serviceScopeFactory;
 
-        public AddUsageItemCommandHandler(IServiceScopeFactory serviceScopeFactory)
+        public AddUsageItemSubscriberCommandHandler(IServiceScopeFactory serviceScopeFactory)
         {
             _validator = new AddUsageItemCommandValidator();
             _serviceScopeFactory = serviceScopeFactory;
         }
 
-        public async Task<Result<int>> Handle(AddUsageItemCommand request, CancellationToken cancellationToken)
+        public async Task<Result<int>> Handle(AddUsageItemSubscriberCommand request, CancellationToken cancellationToken)
         {
             using (var scope = _serviceScopeFactory.CreateScope())
             {
@@ -51,8 +52,13 @@ namespace EA.UsageTracking.Infrastructure.Features.Usages.Commands
 
                 var applicationResult = dbContext.Applications.AsNoTracking().SingleOrDefault().ToMaybe()
                     .ToResult(Constants.ErrorMessages.NoTenantExists);
+                var userResult = dbContext.ApplicationUsers.AsNoTracking().SingleOrDefault(u => u.Id == request.ApplicationUserId).ToMaybe()
+                    .ToResult(Constants.ErrorMessages.NoUserExists);
+                var eventResult = dbContext.ApplicationEvents.AsNoTracking().SingleOrDefault(e => e.Id == request.ApplicationEventId).ToMaybe()
+                    .ToResult(Constants.ErrorMessages.NoEventExists);
+
                 var validationResult = Validate(request);
-                var combinedResults = Result.Combine(applicationResult, validationResult);
+                var combinedResults = Result.Combine(applicationResult, userResult, eventResult, validationResult);
                 if(combinedResults.IsFailure) return Result.Fail<int>(combinedResults.Error);
 
                 var usageItem = new UsageItem()
@@ -69,7 +75,7 @@ namespace EA.UsageTracking.Infrastructure.Features.Usages.Commands
             }
         }
 
-        protected Result Validate(AddUsageItemCommand request)
+        protected Result Validate(AddUsageItemSubscriberCommand request)
         {
             var validate = _validator.Validate(request);
             return !validate.IsValid ? Result.Fail(validate.ToString(",")) : Result.Ok();

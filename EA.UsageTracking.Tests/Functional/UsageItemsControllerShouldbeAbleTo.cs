@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Net;
 using System.Net.Http;
 using System.Text;
 using System.Threading.Tasks;
@@ -79,11 +80,9 @@ namespace EA.UsageTracking.Tests.Functional
             //Act
             var response = await _client.PostAsJsonAsync("/api/applicationUsage", usageItemDTO);
             response.EnsureSuccessStatusCode();
-            var stringResponse = await response.Content.ReadAsStringAsync();
-            var result = int.Parse(stringResponse);
 
             //Assert
-            Assert.Greater(result, 0);
+            Assert.AreEqual(HttpStatusCode.Created, response.StatusCode);
         }
     }
 }

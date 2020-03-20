@@ -35,9 +35,6 @@ namespace EA.UsageTracking.Infrastructure
             var infrastructureAssembly = Assembly.GetAssembly(typeof(UsageTrackingContext));
             var sharedKernelAssembly = Assembly.GetAssembly(typeof(Constants));
 
-            //builder.RegisterType<AddUsageItemCommandHandler>().As<IRequestHandler<AddUsageItemCommand, Result<int>>>();
-            //builder.RegisterDecorator<AddUsageItemCommandHandlerDecorator, IRequestHandler<AddUsageItemCommand, Result<int>>>();
-
             builder.RegisterType<Mediator>().As<IMediator>().InstancePerLifetimeScope();
             builder.RegisterType<UsageTrackingContextFactory>().As<IUsageTrackingContextFactory>().InstancePerLifetimeScope();
             builder.RegisterType<UriService>().As<IUriService>().SingleInstance();

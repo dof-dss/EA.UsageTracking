@@ -63,14 +63,9 @@ namespace EA.UsageTracking.Application.API.Controllers
         [HttpPost]
         [ProducesResponseType(StatusCodes.Status201Created)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
-        public async Task<IActionResult> Post([FromBody] AddUsageItemCommand command)
-        {
-            command.TenantId = Guid.Parse(_httpContext.Request.Headers[Constants.Tenant.TenantId].ToString());
-            var publisher = _connectionMultiplexer.GetSubscriber();
-            await publisher.PublishAsync("Usage", JsonConvert.SerializeObject(command), CommandFlags.FireAndForget);
-
-            return StatusCode(201);
-        }
+        public async Task<IActionResult> Post([FromBody] AddUsageItemPublisherCommand publisherCommand) =>
+            (await _mediator.Send(publisherCommand))
+                .OnBoth(r => r.IsSuccess ? (IActionResult)StatusCode(201) : BadRequest(r.Error));
 
         [HttpPost("seed")] 
         [ApiExplorerSettings(IgnoreApi = true)]

@@ -50,6 +50,10 @@
     <Compile Remove="Migrations\20200303091358_addTenantIdToApp.Designer.cs" />
     <Compile Remove="Migrations\20200303092408_AppPKToInt.cs" />
     <Compile Remove="Migrations\20200303092408_AppPKToInt.Designer.cs" />
+    <Compile Remove="Migrations\20200319161958_ClientRequest.cs" />
+    <Compile Remove="Migrations\20200319161958_ClientRequest.Designer.cs" />
+    <Compile Remove="Migrations\20200319171207_ClientRequestAddDeleteFlag.cs" />
+    <Compile Remove="Migrations\20200319171207_ClientRequestAddDeleteFlag.Designer.cs" />
   </ItemGroup>
 
   <ItemGroup>
