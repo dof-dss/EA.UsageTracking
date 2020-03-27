@@ -32,7 +32,7 @@ namespace EA.UsageTracking.Tests.Integration.Usage
             var results = await Mediator.Send(new GetUsagesForApplicationQuery { });
 
             //Assert
-            Assert.AreEqual(0, results.Value.Total);
+            Assert.AreEqual(0, results.Value.Data.Count());
         }
 
         [Test]
@@ -45,7 +45,7 @@ namespace EA.UsageTracking.Tests.Integration.Usage
             var results = await Mediator.Send(new GetUsagesForApplicationQuery { });
 
             //Assert
-            Assert.AreEqual(2, results.Value.Total);
+            Assert.AreEqual(2, results.Value.Data.Count());
         }
 
         [Test]

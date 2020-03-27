@@ -21,6 +21,11 @@ namespace EA.UsageTracking.Infrastructure.Features.Common
         protected Maybe<Application> MaybeApplication = Maybe<Application>.None;
         protected readonly IDistributedCache Cache;
 
+        protected AsyncBaseHandler(IUsageTrackingContextFactory usageTrackingContextFactory)
+        {
+            DbContext = usageTrackingContextFactory.UsageTrackingContext;
+        }
+
         protected AsyncBaseHandler(IUsageTrackingContextFactory usageTrackingContextFactory, IMapper mapper)
         {
             DbContext = usageTrackingContextFactory.UsageTrackingContext;

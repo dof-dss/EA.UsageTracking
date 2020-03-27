@@ -28,7 +28,7 @@ namespace EA.UsageTracking.Subscriber
             Host.CreateDefaultBuilder(args)
                 .ConfigureServices((hostContext, services) =>
                 {                
-                    services.AddHostedService<Worker>();
+                    services.AddHostedService<UsageSubscriberWorker>();
                     services.AddAutoMapper(Assembly.GetAssembly(typeof(UsageTrackingContext)));
 
                     Action<MySqlDbContextOptionsBuilder> mySqlOptionsAction = (o) =>
@@ -44,7 +44,7 @@ namespace EA.UsageTracking.Subscriber
                         var builder = new DbContextOptionsBuilder<UsageTrackingContext>();
                         return builder.UseMySql(hostContext.Configuration).Options;
                     });
-                    services.AddMediatR(typeof(Worker), typeof(UsageTrackingContext));
+                    services.AddMediatR(typeof(UsageSubscriberWorker), typeof(UsageTrackingContext));
                 })
                 .UseWindowsService()
                 .AddCloudFoundry();

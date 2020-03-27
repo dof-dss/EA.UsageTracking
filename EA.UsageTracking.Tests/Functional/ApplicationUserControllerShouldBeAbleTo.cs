@@ -9,6 +9,8 @@ using EA.UsageTracking.Application.API;
 using EA.UsageTracking.Core.DTOs;
 using EA.UsageTracking.Infrastructure.Features.Pagination;
 using EA.UsageTracking.SharedKernel.Constants;
+using Microsoft.AspNetCore.TestHost;
+using Microsoft.Extensions.DependencyInjection;
 using Newtonsoft.Json;
 using NUnit.Framework;
 using NUnit.Framework.Internal;
@@ -22,8 +24,17 @@ namespace EA.UsageTracking.Tests.Functional
 
         public ApplicationUserControllerShouldBeAbleTo()
         {
-            _client = new CustomWebApplicationFactory<Startup>().CreateClient();
-            _client.DefaultRequestHeaders.Add(Constants.Tenant.TenantId, "b0ed668d-7ef2-4a23-a333-94ad278f45d7");
+            var factory = new CustomWebApplicationFactory<TestStartup>().WithWebHostBuilder(builder =>
+            {
+                builder.UseSolutionRelativeContentRoot("EA.UsageTracking.Application.API");
+
+                builder.ConfigureTestServices(services =>
+                {
+                    services.AddControllers().AddApplicationPart(typeof(Startup).Assembly);
+                    services.AddMvc().AddApplicationPart(typeof(Startup).Assembly);
+                });
+            });
+            _client = factory.CreateClient();
         }
 
         [Test]
@@ -36,7 +47,7 @@ namespace EA.UsageTracking.Tests.Functional
             var result = JsonConvert.DeserializeObject<PagedResponse< ApplicationUserDTO>>(stringResponse);
 
             //Assert
-            Assert.AreEqual(3, result.Total);
+            Assert.AreEqual("3", result.Total);
         }
 
         [Test]

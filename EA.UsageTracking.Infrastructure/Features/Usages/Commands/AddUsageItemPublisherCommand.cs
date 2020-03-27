@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Linq;
+using System.Security.Claims;
 using System.Threading;
 using System.Threading.Tasks;
 using AutoMapper;
@@ -36,6 +37,17 @@ namespace EA.UsageTracking.Infrastructure.Features.Usages.Commands
         private readonly AddUsageItemCommandValidator _validator;
         private readonly IConnectionMultiplexer _connectionMultiplexer;
         private readonly HttpContext _httpContext;
+        public string TenantId
+        {
+            get
+            {
+                var maybeClaim = _httpContext.User.Claims.FirstOrDefault(c => c.Type == "client_id")
+                    .ToMaybe()
+                    .ValueOrThrow(new ArgumentNullException("client_id"));
+
+                return maybeClaim.Value;
+            }
+        }
 
         public AddUsageItemPublisherCommandHandler(IConnectionMultiplexer connectionMultiplexer, 
             IHttpContextAccessor httpContextAccessor)
@@ -50,7 +62,7 @@ namespace EA.UsageTracking.Infrastructure.Features.Usages.Commands
         {
             var subscriberCommand = new AddUsageItemSubscriberCommand
             {
-                TenantId = Guid.Parse(_httpContext.Request.Headers[Constants.Tenant.TenantId].ToString()),
+                TenantId = TenantId,
                 RequestId = Guid.NewGuid(),
                 ApplicationEventId = request.ApplicationEventId,
                 ApplicationUserId = request.ApplicationUserId

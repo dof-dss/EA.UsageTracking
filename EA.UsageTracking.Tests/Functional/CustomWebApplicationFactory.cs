@@ -1,19 +1,26 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Linq;
+using System.Security.Claims;
 using EA.UsageTracking.Application.API;
 using EA.UsageTracking.Infrastructure.Data;
 using EA.UsageTracking.SharedKernel.Constants;
+using Microsoft.AspNetCore;
+using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc.Testing;
+using Microsoft.AspNetCore.TestHost;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using Moq;
+using WebMotions.Fake.Authentication.JwtBearer;
 
 namespace EA.UsageTracking.Tests.Functional
 {
-    public class CustomWebApplicationFactory<TStartup> : WebApplicationFactory<Startup>
+    public class CustomWebApplicationFactory<TStartup> : WebApplicationFactory<TStartup> where TStartup : class
     {
         private readonly ServiceProvider _serviceProvider;
 
@@ -22,17 +29,34 @@ namespace EA.UsageTracking.Tests.Functional
             _serviceProvider = new ServiceCollection().AddEntityFrameworkInMemoryDatabase().BuildServiceProvider();
         }
 
+        protected override IWebHostBuilder CreateWebHostBuilder()
+        {
+            return WebHost.CreateDefaultBuilder(null)
+                .UseStartup<TStartup>();
+        }
+
         protected override void ConfigureWebHost(IWebHostBuilder builder)
         {
             builder.ConfigureServices(services =>
             {
-
+                MockHttpContext(services);
                 AddInMemoryDbOptions(services);
-
-                var sp = services.BuildServiceProvider();
-
-                SeedTestData(sp);
+                SeedTestData(services.BuildServiceProvider());
             });
+
+            builder.ConfigureTestServices(services =>
+            {
+                services.AddAuthentication(FakeJwtBearerDefaults.AuthenticationScheme).AddFakeJwtBearer(); ;
+            });
+        }
+
+        private void MockHttpContext(IServiceCollection services)
+        {
+            var mockAccessor = new Mock<IHttpContextAccessor>();
+            mockAccessor.Setup(x => x.HttpContext.User.Claims).Returns(new List<Claim>() { new Claim("client_id", Guid.NewGuid().ToString()) });
+            mockAccessor.Setup(x => x.HttpContext.Request.Scheme).Returns("http");
+            mockAccessor.Setup(x => x.HttpContext.Request.Host).Returns(new HostString("test"));
+            services.AddSingleton<IHttpContextAccessor>(x => mockAccessor.Object);
         }
 
         private void AddInMemoryDbOptions(IServiceCollection services)
@@ -56,11 +80,9 @@ namespace EA.UsageTracking.Tests.Functional
                 var scopedServices = scope.ServiceProvider;
 
                 var options = scopedServices.GetRequiredService<DbContextOptions<UsageTrackingContext>>();
-                var httpContextAccessorMock = new Mock<IHttpContextAccessor>();
-                httpContextAccessorMock.Setup(x => x.HttpContext.Request.Headers[Constants.Tenant.TenantId])
-                    .Returns("b0ed668d-7ef2-4a23-a333-94ad278f45d7");
+                var httpContextAccessorMock = scopedServices.GetRequiredService<IHttpContextAccessor>();
 
-                var db = new UsageTrackingContextFactory(httpContextAccessorMock.Object, options);
+                var db = new UsageTrackingContextFactory(httpContextAccessorMock, options);
 
                 var logger = scopedServices
                     .GetRequiredService<ILogger<CustomWebApplicationFactory<TStartup>>>();

@@ -1,5 +1,7 @@
 ﻿using System;
+using System.Linq;
 using EA.UsageTracking.SharedKernel.Constants;
+using EA.UsageTracking.SharedKernel.Extensions;
 using Microsoft.AspNetCore.Http;
 using Microsoft.EntityFrameworkCore;
 
@@ -19,15 +21,17 @@ namespace EA.UsageTracking.Infrastructure.Data
 
         public UsageTrackingContext UsageTrackingContext => new UsageTrackingContext(_options, TenantId);
 
-        private Guid TenantId
+        private string TenantId
         {
             get
             {
                 ValidateHttpContext();
 
-                var tenantId = this._httpContext.Request.Headers[Constants.Tenant.TenantId].ToString();
+                var maybeTenant = _httpContext.User.Claims.FirstOrDefault(c => c.Type == "client_id")
+                    .ToMaybe()
+                    .ValueOrThrow(new ArgumentNullException("client_id"));
 
-                return MarshallTenantId(tenantId);
+                return maybeTenant.Value;
             }
         }
 
@@ -37,21 +41,6 @@ namespace EA.UsageTracking.Infrastructure.Data
             {
                 throw new ArgumentNullException(nameof(this._httpContext));
             }
-        }
-
-        private static Guid MarshallTenantId(string tenantId)
-        {
-            if (tenantId == null)
-            {
-                throw new ArgumentNullException(nameof(tenantId));
-            }
-
-            if (!Guid.TryParse(tenantId, out Guid tenantGuid))
-            {
-                throw new ArgumentNullException(nameof(tenantId));
-            }
-
-            return tenantGuid;
         }
     }
 }

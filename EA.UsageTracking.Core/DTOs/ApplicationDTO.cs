@@ -8,6 +8,6 @@ namespace EA.UsageTracking.Core.DTOs
     {
         public int ApplicationId { get; set; }
         public string Name { get; set; }
-        public Guid TenantId { get; set; }
+        public string TenantId { get; set; }
     }
 }

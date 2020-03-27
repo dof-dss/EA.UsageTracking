@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using EA.UsageTracking.Core.Entities;
@@ -36,7 +37,7 @@ namespace EA.UsageTracking.Tests.Integration.Users
             var results = await Mediator.Send(new GetUsersForApplicationQuery { PageNumber = 1, PageSize = 100 });
 
             //Assert
-            Assert.AreEqual(0, results.Value.Total);
+            Assert.AreEqual(0, results.Value.Data.Count());
         }
 
         [Test]
@@ -57,7 +58,7 @@ namespace EA.UsageTracking.Tests.Integration.Users
             var results = await Mediator.Send(new GetUsersForApplicationQuery { PageNumber = 1, PageSize = 100 });
 
             //Assert
-            Assert.AreEqual(3, results.Value.Total);
+            Assert.AreEqual("3", results.Value.Total);
         }
 
         [Test]
@@ -74,7 +75,7 @@ namespace EA.UsageTracking.Tests.Integration.Users
             DbContext.Applications.Add(app);
             DbContext.SaveChanges();
 
-            DbContext.TenantId = Guid.NewGuid();
+            DbContext.TenantId = "SomeRandomClientId";
             var app2 = new Core.Entities.Application();
             app2.UserToApplications = new List<UserToApplication>
             {
@@ -95,7 +96,7 @@ namespace EA.UsageTracking.Tests.Integration.Users
             var results = await Mediator.Send(new GetUsersForApplicationQuery { PageNumber = 1, PageSize = 100 });
 
             //Assert
-            Assert.AreEqual(3, results.Value.Total);
+            Assert.AreEqual("3", results.Value.Total);
         }
     }
 }

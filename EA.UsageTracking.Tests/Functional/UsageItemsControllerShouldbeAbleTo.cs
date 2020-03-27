@@ -1,18 +1,30 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Dynamic;
 using System.Linq;
 using System.Net;
 using System.Net.Http;
+using System.Net.Http.Headers;
+using System.Security.Claims;
 using System.Text;
 using System.Threading.Tasks;
 using EA.UsageTracking.Application.API;
 using EA.UsageTracking.Core.DTOs;
 using EA.UsageTracking.Core.Entities;
+using EA.UsageTracking.Infrastructure.Data;
 using EA.UsageTracking.Infrastructure.Features.Pagination;
 using EA.UsageTracking.SharedKernel.Constants;
+using Microsoft.AspNetCore.Hosting;
+using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.TestHost;
+using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Hosting;
+using Moq;
 using Newtonsoft.Json;
 using NUnit.Framework;
 using NUnit.Framework.Internal;
+using WebMotions.Fake.Authentication.JwtBearer;
 
 namespace EA.UsageTracking.Tests.Functional
 {
@@ -23,22 +35,30 @@ namespace EA.UsageTracking.Tests.Functional
 
         public UsageItemsControllerShouldBeAbleTo()
         {
-            _client = new CustomWebApplicationFactory<Startup>().CreateClient();
-            _client.DefaultRequestHeaders.Add(Constants.Tenant.TenantId, "b0ed668d-7ef2-4a23-a333-94ad278f45d7");
+            var factory = new CustomWebApplicationFactory<TestStartup>().WithWebHostBuilder(builder =>
+            {
+                builder.UseSolutionRelativeContentRoot("EA.UsageTracking.Application.API");
+
+                builder.ConfigureTestServices(services =>
+                {
+                    services.AddControllers().AddApplicationPart(typeof(Startup).Assembly);
+                    services.AddMvc().AddApplicationPart(typeof(Startup).Assembly);
+                });
+            });
+            _client = factory.CreateClient();
         }
 
         [Test]
         public async Task GetAllForApplication()
         {
             //Act
-            var response = await _client.GetAsync("/api/applicationUsage?PageNumber=1&PageSize=1");
+            var response = await _client.GetAsync("/api/applicationUsage?PageNumber=1&PageSize=2");
             response.EnsureSuccessStatusCode();
             var stringResponse = await response.Content.ReadAsStringAsync();
             var result = JsonConvert.DeserializeObject<PagedResponse<UsageItemDTO>>(stringResponse);
 
             //Assert
-            Assert.AreEqual(2, result.Total);
-            Assert.AreEqual(1, result.Data.Count());
+            Assert.AreEqual(2, result.Data.Count());
         }
 
         [Test]
@@ -66,7 +86,6 @@ namespace EA.UsageTracking.Tests.Functional
             var result = JsonConvert.DeserializeObject<PagedResponse<UsageItemDTO>>(stringResponse);
 
             //Assert
-            Assert.AreEqual(1, result.Total);
             Assert.AreEqual("User 1", result.Data.First().ApplicationUserName);
         }
 

@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
+using System.Security.Claims;
 using System.Text;
 using System.Threading;
 using Autofac;
@@ -39,9 +40,9 @@ namespace EA.UsageTracking.Tests.Integration
         public BaseIntegration(Guid tenantGuid)
         {
             var services = new ServiceCollection();
-
+            
             var mockAccessor = new Mock<IHttpContextAccessor>();
-            mockAccessor.Setup(x => x.HttpContext.Request.Headers[Constants.Tenant.TenantId]).Returns(tenantGuid.ToString());
+            mockAccessor.Setup(x => x.HttpContext.User.Claims).Returns(new List<Claim>(){ new Claim("client_id", tenantGuid.ToString()) });
             mockAccessor.Setup(x => x.HttpContext.Request.Scheme).Returns("http");
             mockAccessor.Setup(x => x.HttpContext.Request.Host).Returns(new HostString("test"));
             services.AddSingleton<IHttpContextAccessor>(x => mockAccessor.Object);

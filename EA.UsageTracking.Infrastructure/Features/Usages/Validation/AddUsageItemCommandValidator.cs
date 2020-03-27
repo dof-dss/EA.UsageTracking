@@ -11,8 +11,8 @@ namespace EA.UsageTracking.Infrastructure.Features.Usages.Validation
     {
         public AddUsageItemCommandValidator()
         {
-            RuleFor(a => a.TenantId).NotNull().NotEqual(Guid.Empty)
-                .WithMessage(Constants.ErrorMessages.EmptyGuid);
+            RuleFor(a => a.TenantId).NotNull().NotEmpty()
+                .WithMessage(Constants.ErrorMessages.NoTenantExists);
             RuleFor(a => a.ApplicationUserId).NotNull().NotEqual(Guid.Empty)
                 .WithMessage(Constants.ErrorMessages.EmptyGuid);
             RuleFor(a => a.ApplicationEventId).NotEqual(0)

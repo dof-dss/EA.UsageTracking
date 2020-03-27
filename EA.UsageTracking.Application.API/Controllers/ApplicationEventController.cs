@@ -25,6 +25,7 @@ namespace EA.UsageTracking.Application.API.Controllers
         }
 
         [HttpGet]
+        [IgnoreParameter(ParameterToIgnore = "ApiRoute")]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         public async Task<IActionResult> Get([FromQuery] GetEventsForApplicationQuery getEventsForApplicationQuery) =>

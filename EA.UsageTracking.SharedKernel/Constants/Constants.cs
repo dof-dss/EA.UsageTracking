@@ -12,7 +12,7 @@ namespace EA.UsageTracking.SharedKernel.Constants
             public const string NoEventExists = "Event does not exist";
             public const string NoUserExists = "User does not exist";
             public const string NoItemExists = "Item does not exist";
-            public const string EmptyGuid = "Application GUID not set";
+            public const string EmptyGuid = "GUID not set";
             public const string NoUserName = "User Name required";
             public const string NoEventName = "Event Name required";
             public const string InvalidPageNumber = "Invalid page number";

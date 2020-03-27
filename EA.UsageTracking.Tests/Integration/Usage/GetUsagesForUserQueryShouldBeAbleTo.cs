@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Linq;
 using System.Threading.Tasks;
 using EA.UsageTracking.Application.API;
 using EA.UsageTracking.Infrastructure.Features.Usages.Queries;
@@ -20,7 +21,7 @@ namespace EA.UsageTracking.Tests.Integration.Usage
             var results = await Mediator.Send(new GetUsagesForUserQuery {Id = Guid.Parse("b0ed668d-7ef2-4a23-a333-94ad278f4111") });
 
             //Assert
-            Assert.AreEqual(1, results.Value.Total);
+            Assert.AreEqual(1, results.Value.Data.Count());
         }
 
         [Test]
@@ -35,7 +36,7 @@ namespace EA.UsageTracking.Tests.Integration.Usage
             var results = await Mediator.Send(new GetUsagesForUserQuery { Id = Guid.NewGuid() });
 
             //Assert
-            Assert.AreEqual(0, results.Value.Total);
+            Assert.AreEqual(0, results.Value.Data.Count());
         }
 
         [Test]

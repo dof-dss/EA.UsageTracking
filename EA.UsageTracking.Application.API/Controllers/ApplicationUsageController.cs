@@ -11,6 +11,7 @@ using EA.UsageTracking.Infrastructure.Features.Usages.Queries;
 using EA.UsageTracking.SharedKernel.Constants;
 using EA.UsageTracking.SharedKernel.Extensions;
 using MediatR;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore.Internal;
@@ -40,10 +41,18 @@ namespace EA.UsageTracking.Application.API.Controllers
         }
 
         [HttpGet]
+        [IgnoreParameter(ParameterToIgnore = "ApiRoute")]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         public async Task<IActionResult> GetAllForApplication([FromQuery] GetUsagesForApplicationQuery getUsagesForApplicationQuery) =>
             (await _mediator.Send(getUsagesForApplicationQuery)).OnBoth(r => r.IsSuccess ? (IActionResult)Ok(r.Value) : BadRequest(r.Error));
+
+        [HttpGet("Total")]
+        [IgnoreParameter(ParameterToIgnore = "ApiRoute")]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        public async Task<IActionResult> GetCountForApplication() =>
+            (await _mediator.Send(new GetTotalForApplicationQuery())).OnBoth(r => r.IsSuccess ? (IActionResult)Ok(r.Value) : BadRequest(r.Error));
 
         [HttpGet("Details")]
         [ProducesResponseType(StatusCodes.Status200OK)]
@@ -53,6 +62,7 @@ namespace EA.UsageTracking.Application.API.Controllers
             .OnBoth(r => r.IsSuccess ? (IActionResult)Ok(r.Value) : NotFound(r.Error));
 
         [HttpGet("User")]
+        [IgnoreParameter(ParameterToIgnore = "ApiRoute")]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         public async Task<IActionResult> GetByUser([FromQuery] GetUsagesForUserQuery getUsagesForUserQuery) =>

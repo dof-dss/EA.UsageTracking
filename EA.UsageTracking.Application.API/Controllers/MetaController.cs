@@ -1,10 +1,12 @@
 ﻿using System.Diagnostics;
+using EA.UsageTracking.Application.API.Attributes;
 using Microsoft.AspNetCore.Mvc;
 
 namespace EA.UsageTracking.Application.API.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
+    [IgnoreTenant]
     public class MetaController : BaseApiController
     {
         [HttpGet("/info")]

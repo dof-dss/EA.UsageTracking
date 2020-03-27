@@ -1,10 +1,10 @@
-using System;
 using System.Collections.Generic;
 using System.Reflection;
 using System.Text;
 using Ardalis.ListStartupServices;
 using AutoMapper;
 using EA.UsageTracking.Application.API.ActionFilters;
+using EA.UsageTracking.Application.API.Authorization;
 using EA.UsageTracking.Core.Entities;
 using EA.UsageTracking.Infrastructure;
 using EA.UsageTracking.Infrastructure.Behaviors;
@@ -12,6 +12,8 @@ using EA.UsageTracking.Infrastructure.Data;
 using EA.UsageTracking.Infrastructure.Features.Pagination;
 using EA.UsageTracking.SharedKernel.Functional;
 using MediatR;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
@@ -21,6 +23,7 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection.Extensions;
 using Microsoft.Extensions.Hosting;
+using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
 using StackExchange.Redis;
 using Steeltoe.CloudFoundry.Connector.MySql.EFCore;
@@ -56,6 +59,7 @@ namespace EA.UsageTracking.Application.API
             ConfigureUsageTrackingContext(services);
             ConfigureSwagger(services);
             ConfigureServiceDescription(services);
+            ConfigureAuthentication(services);
 
             services.AddDistributedRedisCache(Configuration);
             services.AddRedisConnectionMultiplexer(Configuration);
@@ -67,7 +71,7 @@ namespace EA.UsageTracking.Application.API
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
-        public void Configure(IApplicationBuilder app, IWebHostEnvironment env, IHostApplicationLifetime lifetime, IDistributedCache cache)
+        public virtual void Configure(IApplicationBuilder app, IWebHostEnvironment env, IHostApplicationLifetime lifetime, IDistributedCache cache)
         {
             if (env.IsDevelopment())
             {
@@ -78,12 +82,12 @@ namespace EA.UsageTracking.Application.API
             using (var serviceScope = app.ApplicationServices.GetRequiredService<IServiceScopeFactory>().CreateScope())
             {
                 var context = serviceScope.ServiceProvider.GetService<UsageTrackingContext>();
-                if(!context.Database.ProviderName.Contains("Microsoft.EntityFrameworkCore.InMemory"))
-                    context.Database.Migrate();
+                context.Database.Migrate();
             }
 
             app.UseHttpsRedirection();
             app.UseRouting();
+            app.UseAuthentication();
             app.UseAuthorization();
 
             app.UseSwagger();
@@ -95,7 +99,8 @@ namespace EA.UsageTracking.Application.API
 
             app.UseEndpoints(endpoints =>
             {
-                endpoints.MapControllers();
+                endpoints.MapControllers()
+                    .RequireAuthorization();
                 endpoints.MapRazorPages();
             });
         }
@@ -104,19 +109,71 @@ namespace EA.UsageTracking.Application.API
         {
             services.AddDbContext<UsageTrackingContext>(options => options.UseMySql(Configuration));
 
-            services.AddSingleton<IHttpContextAccessor, HttpContextAccessor>();
+            services.TryAddSingleton<IHttpContextAccessor, HttpContextAccessor>();
             services.TryAddSingleton(sp =>
             {
                 var builder = new DbContextOptionsBuilder<UsageTrackingContext>();
                 return builder.UseMySql(Configuration).Options;
             });
         }
+
+        private void ConfigureAuthentication(IServiceCollection services)
+        {
+            var issuer = Configuration["issuer"];
+            services.AddAuthentication(x =>
+            {
+                x.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
+                x.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
+            }).AddJwtBearer(options =>
+            {
+                options.Authority = issuer;
+                options.TokenValidationParameters = new TokenValidationParameters() { ValidateAudience = false };
+            });
+
+            services.AddAuthorization(options =>
+            {
+                options.AddPolicy("usage-api/read_usage", policy => policy.Requirements.Add(new HasScopeRequirement("usage-api/read_usage", issuer)));
+                options.AddPolicy("usage-api/create_usage", policy => policy.Requirements.Add(new HasScopeRequirement("usage-api/create_usage", issuer)));
+                options.AddPolicy("usage-api/usage_admin", policy => policy.Requirements.Add(new HasScopeRequirement("usage-api/usage_admin", issuer)));
+            });
+
+            services.AddSingleton<IAuthorizationHandler, HasScopeHandler>();
+
+        }
+
         private void ConfigureSwagger(IServiceCollection services)
         {
             services.AddSwaggerGen(c =>
             {
                 c.SwaggerDoc("v1", new OpenApiInfo { Title = "Usage Tracking API", Version = "v1" });
                 c.OperationFilter<TenantHeaderFilter>();
+                c.OperationFilter<IgnoreParameterFilter>();
+                c.AddSecurityDefinition("Bearer", new OpenApiSecurityScheme
+                {
+                    Description = "JWT Authorization header using the bearer scheme",
+                    Name = "Authorization",
+                    In = ParameterLocation.Header,
+                    Type = SecuritySchemeType.ApiKey,
+                    Scheme = "Bearer"
+                });
+                c.AddSecurityRequirement(new OpenApiSecurityRequirement()
+                {
+                    {
+                        new OpenApiSecurityScheme
+                        {
+                            Reference = new OpenApiReference
+                            {
+                                Type = ReferenceType.SecurityScheme,
+                                Id = "Bearer"
+                            },
+                            Scheme = "oauth2",
+                            Name = "Bearer",
+                            In = ParameterLocation.Header,
+
+                        },
+                        new List<string>()
+                    }
+                });
             });
         }
 

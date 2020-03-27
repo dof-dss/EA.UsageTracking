@@ -54,7 +54,7 @@ namespace EA.UsageTracking.Tests.Integration.Users
             DbContext.Applications.Add(app);
             DbContext.SaveChanges();
 
-            DbContext.TenantId = Guid.NewGuid();
+            DbContext.TenantId = "SomeRandomClientID";
             var app2 = new Core.Entities.Application
             {
                 UserToApplications = new List<UserToApplication>

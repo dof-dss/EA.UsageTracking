@@ -28,11 +28,12 @@ namespace EA.UsageTracking.Infrastructure.Features.Applications.Commands
         {
             _usageTrackingContext = usageTrackingContext;
             _mapper = mapper;
-            _usageTrackingContext.TenantId = Guid.NewGuid();
         }
 
         public async Task<Result<ApplicationDTO>> Handle(AddApplicationCommand request, CancellationToken cancellationToken)
         {
+
+            _usageTrackingContext.TenantId = request.ApplicationDto.TenantId;
             var application = _mapper.Map<Application>(request.ApplicationDto);
             _usageTrackingContext.Applications.Add(application);
             await _usageTrackingContext.SaveChangesAsync(cancellationToken);

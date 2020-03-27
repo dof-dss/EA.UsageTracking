@@ -36,6 +36,7 @@ namespace EA.UsageTracking.Application.API.Controllers
             .OnBoth(r => r.IsSuccess ? (IActionResult)Ok(r.Value) : BadRequest(r.Error));
 
         [HttpPost("PostRedis/{key}/{value}")]
+        [ApiExplorerSettings(IgnoreApi = true)]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         public async Task<IActionResult> PostRedis(string key, string value)
@@ -45,6 +46,7 @@ namespace EA.UsageTracking.Application.API.Controllers
         }
 
         [HttpGet("GetRedis")]
+        [ApiExplorerSettings(IgnoreApi = true)]
         public async Task<IActionResult> GetRedis([FromQuery] string key)
         {
             var result = await _cache.GetStringAsync(key);

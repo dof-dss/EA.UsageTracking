@@ -42,8 +42,8 @@ namespace EA.UsageTracking.Infrastructure.Features.Usages.Queries
             if (validationResult.IsFailure)
                 return Result.Fail<PagedResponse<UsageItemDTO>>(validationResult.Error);
 
-            var pagination = Mapper.Map<PaginationDetails>(message)
-                .WithTotal(DbContext.UsageItems.Count(i => i.ApplicationUser.Id == message.Id));
+            var pagination = Mapper.Map<PaginationDetails>(message);
+            //.WithTotal(DbContext.UsageItems.Count(i => i.ApplicationUser.Id == message.Id));
 
             var results = DbContext.UsageItems
                 .AsNoTracking()

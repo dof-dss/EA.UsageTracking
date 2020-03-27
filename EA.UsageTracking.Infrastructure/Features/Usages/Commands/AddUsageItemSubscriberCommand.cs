@@ -24,7 +24,7 @@ namespace EA.UsageTracking.Infrastructure.Features.Usages.Commands
 {
     public class AddUsageItemSubscriberCommand : IRequest<Result<int>>
     { 
-        public Guid TenantId { get; set; }
+        public string TenantId { get; set; }
         public Guid RequestId { get; set; }
         public int ApplicationEventId { get; set; }
         public Guid ApplicationUserId { get; set; }

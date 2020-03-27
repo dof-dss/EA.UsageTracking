@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.Threading.Tasks;
+using EA.UsageTracking.Application.API.Attributes;
 using EA.UsageTracking.Core.DTOs;
 using EA.UsageTracking.Infrastructure.Features.Events.Commands;
 using EA.UsageTracking.Infrastructure.Features.Events.Queries;
@@ -26,6 +27,7 @@ namespace EA.UsageTracking.Application.API.Controllers
         }
 
         [HttpGet]
+        [IgnoreParameter(ParameterToIgnore = "ApiRoute")]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         public async Task<IActionResult> Get([FromQuery] GetUsersForApplicationQuery getUsersForApplicationQuery) =>

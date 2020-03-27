@@ -13,9 +13,9 @@ namespace EA.UsageTracking.Infrastructure.Data
 {
     public class UsageTrackingContext : DbContext
     {
-        public Guid TenantId { get; set; }
+        public string TenantId { get; set; }
 
-        public UsageTrackingContext(DbContextOptions<UsageTrackingContext> options, Guid tenantId)
+        public UsageTrackingContext(DbContextOptions<UsageTrackingContext> options, string tenantId)
             : base(options)
         {
             TenantId = tenantId;
@@ -40,15 +40,15 @@ namespace EA.UsageTracking.Infrastructure.Data
             modelBuilder.Entity<UsageItem>().Property<bool>("isDeleted");
 
             modelBuilder.Entity<Application>()
-                .HasQueryFilter(b => EF.Property<Guid>(b, "TenantId") == TenantId 
+                .HasQueryFilter(b => EF.Property<string>(b, "TenantId") == TenantId 
                                      && EF.Property<bool>(b, "isDeleted") == false);
 
             modelBuilder.Entity<ApplicationUser>().HasQueryFilter(b => EF.Property<bool>(b, "isDeleted") == false);
 
-            modelBuilder.Entity<ApplicationEvent>().HasQueryFilter(b => EF.Property<Guid>(b, "TenantId") == TenantId
+            modelBuilder.Entity<ApplicationEvent>().HasQueryFilter(b => EF.Property<string>(b, "TenantId") == TenantId
                                                                         && EF.Property<bool>(b, "isDeleted") == false);
 
-            modelBuilder.Entity<UsageItem>().HasQueryFilter(b => EF.Property<Guid>(b, "TenantId") == TenantId 
+            modelBuilder.Entity<UsageItem>().HasQueryFilter(b => EF.Property<string>(b, "TenantId") == TenantId 
                                                                  && EF.Property<bool>(b, "isDeleted") == false);
 
             modelBuilder.Entity<UserToApplication>().HasKey(ua => new { ua.UserId, ua.ApplicationId });
@@ -61,6 +61,8 @@ namespace EA.UsageTracking.Infrastructure.Data
                 .HasOne(pt => pt.Application)
                 .WithMany(t => t.UserToApplications)
                 .HasForeignKey(pt => pt.ApplicationId);
+
+            modelBuilder.Entity<UsageItem>().HasIndex("TenantId");
 
             base.OnModelCreating(modelBuilder);
 

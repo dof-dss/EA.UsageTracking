@@ -13,13 +13,13 @@ using StackExchange.Redis;
 
 namespace EA.UsageTracking.Subscriber
 {
-    public class Worker : BackgroundService
+    public class UsageSubscriberWorker : BackgroundService
     {
-        private readonly ILogger<Worker> _logger;
+        private readonly ILogger<UsageSubscriberWorker> _logger;
         private readonly IConnectionMultiplexer _connectionMultiplexer;
         private readonly  IMediator _mediator;
 
-        public Worker(ILogger<Worker> logger, IConnectionMultiplexer connectionMultiplexer, IMediator mediator)
+        public UsageSubscriberWorker(ILogger<UsageSubscriberWorker> logger, IConnectionMultiplexer connectionMultiplexer, IMediator mediator)
         {
             _logger = logger;
             _connectionMultiplexer = connectionMultiplexer;
@@ -29,13 +29,17 @@ namespace EA.UsageTracking.Subscriber
         protected override async Task ExecuteAsync(CancellationToken stoppingToken)
         {
             var redisChannel = _connectionMultiplexer.GetSubscriber().Subscribe("Usage");
-            redisChannel.OnMessage(message =>
+            redisChannel.OnMessage(async message =>
             {
                 _logger.LogInformation($"{DateTime.Now:yyyyMMdd HH:mm:ss}<{message.Message.ToString()}>.");
 
                 var command = JsonConvert.DeserializeObject<AddUsageItemSubscriberCommand>(message.Message);
 
-                _mediator.Send(command, stoppingToken);
+                var result = await _mediator.Send(command, stoppingToken);
+
+                if (result.IsFailure) { 
+                    //TODO Handle this
+                }
             });
         }
     }

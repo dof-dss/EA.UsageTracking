@@ -3,14 +3,16 @@ using System;
 using EA.UsageTracking.Infrastructure.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 namespace EA.UsageTracking.Infrastructure.Migrations
 {
     [DbContext(typeof(UsageTrackingContext))]
-    partial class UsageTrackingContextModelSnapshot : ModelSnapshot
+    [Migration("20200324123409_AddIsDEleteIndexToUasgeItems")]
+    partial class AddIsDEleteIndexToUasgeItems
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -138,7 +140,7 @@ namespace EA.UsageTracking.Infrastructure.Migrations
 
                     b.HasIndex("ApplicationUserId");
 
-                    b.HasIndex("TenantId");
+                    b.HasIndex("TenantId", "isDeleted");
 
                     b.ToTable("UsageItems");
                 });

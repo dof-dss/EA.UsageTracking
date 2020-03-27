@@ -10,7 +10,7 @@ namespace EA.UsageTracking.Infrastructure.Features.Pagination
         public IEnumerable<T> Data { get; set; }
         public int? PageNumber { get; set; }
         public int? PageSize { get; set; }
-        public int Total { get; set; }
+        public string Total { get; set; }
         public string NextPage { get; set; }
         public string PreviousPage { get; set; }
 
@@ -31,7 +31,7 @@ namespace EA.UsageTracking.Infrastructure.Features.Pagination
                 PageSize = paginationDetails.PageSize >= 1 ? paginationDetails.PageSize : (int?)null,
                 NextPage = response.Any() ? nextPage : null,
                 PreviousPage = previousPage,
-                Total = paginationDetails.Total
+                Total = paginationDetails.Total == 0 ? "Not available" : paginationDetails.Total.ToString()
             };
         }
     }
