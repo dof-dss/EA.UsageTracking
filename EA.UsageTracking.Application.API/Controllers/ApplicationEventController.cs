@@ -38,6 +38,7 @@ namespace EA.UsageTracking.Application.API.Controllers
             (await _mediator.Send(getEventDetailsQuery)).OnBoth(r => r.IsSuccess ? (IActionResult)Ok(r.Value) : NotFound(r.Error));
 
         [HttpPost]
+        [IgnoreParameter(ParameterToIgnore = "Id")]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         public async Task<IActionResult> Post([FromBody] ApplicationEventDTO eventDTO) =>

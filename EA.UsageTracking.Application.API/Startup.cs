@@ -146,7 +146,6 @@ namespace EA.UsageTracking.Application.API
             services.AddSwaggerGen(c =>
             {
                 c.SwaggerDoc("v1", new OpenApiInfo { Title = "Usage Tracking API", Version = "v1" });
-                c.OperationFilter<TenantHeaderFilter>();
                 c.OperationFilter<IgnoreParameterFilter>();
                 c.AddSecurityDefinition("Bearer", new OpenApiSecurityScheme
                 {

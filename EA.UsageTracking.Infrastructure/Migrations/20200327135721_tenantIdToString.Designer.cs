@@ -3,14 +3,16 @@ using System;
 using EA.UsageTracking.Infrastructure.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 namespace EA.UsageTracking.Infrastructure.Migrations
 {
     [DbContext(typeof(UsageTrackingContext))]
-    partial class UsageTrackingContextModelSnapshot : ModelSnapshot
+    [Migration("20200327135721_tenantIdToString")]
+    partial class tenantIdToString
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
