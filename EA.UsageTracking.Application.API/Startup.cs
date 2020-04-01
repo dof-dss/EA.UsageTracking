@@ -90,6 +90,12 @@ namespace EA.UsageTracking.Application.API
             app.UseAuthentication();
             app.UseAuthorization();
 
+            //Disable/refine in Production
+            app.UseCors(builder => builder
+                .AllowAnyOrigin()
+                .AllowAnyMethod()
+                .AllowAnyHeader());
+
             app.UseSwagger();
             app.UseSwaggerUI(c =>
             {
