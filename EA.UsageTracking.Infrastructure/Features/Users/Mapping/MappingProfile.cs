@@ -12,7 +12,8 @@ namespace EA.UsageTracking.Infrastructure.Features.Users.Mapping
     {
         public MappingProfile()
         {
-            CreateMap<ApplicationUser, ApplicationUserDTO>();
+            CreateMap<ApplicationUser, ApplicationUserDTO>()
+                .ForMember(d => d.Email, o => o.NullSubstitute("N/A"));
             CreateMap<ApplicationUserDTO, ApplicationUser>();
             CreateMap<GetUsersForApplicationQuery, Pagination.PaginationDetails>();
         }

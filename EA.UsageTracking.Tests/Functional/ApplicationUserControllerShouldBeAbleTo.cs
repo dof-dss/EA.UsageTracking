@@ -47,7 +47,7 @@ namespace EA.UsageTracking.Tests.Functional
             var result = JsonConvert.DeserializeObject<PagedResponse< ApplicationUserDTO>>(stringResponse);
 
             //Assert
-            Assert.AreEqual("3", result.Total);
+            Assert.AreEqual(3, result.Total);
         }
 
         [Test]

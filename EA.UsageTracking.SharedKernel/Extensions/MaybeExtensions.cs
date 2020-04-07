@@ -3,13 +3,12 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using EA.UsageTracking.SharedKernel.Functional;
-using NullGuard;
 
 namespace EA.UsageTracking.SharedKernel.Extensions
 {
     public static class MaybeExtensions
     {
-        public static Maybe<T> ToMaybe<T>([AllowNull] this T value) where T : class
+        public static Maybe<T> ToMaybe<T>(this T value) where T : class
         {
             return value != null
                 ? Maybe.Some(value)

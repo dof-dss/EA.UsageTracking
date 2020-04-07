@@ -12,7 +12,8 @@ namespace EA.UsageTracking.Infrastructure.Features.Applications.Mapping
         public MappingProfile()
         {
             CreateMap<Application, ApplicationDTO>()
-                .ForMember(d => d.ApplicationId, o => o.MapFrom(s => s.Id));
+                .ForMember(d => d.ApplicationId, o => o.MapFrom(s => s.Id))
+                .ForMember(d => d.ClientId, o => o.MapFrom(s => s.TenantId));
             CreateMap<ApplicationDTO, Application>();
         }
     }

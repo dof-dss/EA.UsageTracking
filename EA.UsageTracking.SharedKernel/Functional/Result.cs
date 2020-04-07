@@ -1,5 +1,4 @@
 ﻿using System;
-using NullGuard;
 
 namespace EA.UsageTracking.SharedKernel.Functional
 {
@@ -68,7 +67,7 @@ namespace EA.UsageTracking.SharedKernel.Functional
             }
         }
 
-        protected internal Result([AllowNull] T value, bool isSuccess, string error)
+        protected internal Result(T value, bool isSuccess, string error)
             : base(isSuccess, error)
         {
             _value = value;

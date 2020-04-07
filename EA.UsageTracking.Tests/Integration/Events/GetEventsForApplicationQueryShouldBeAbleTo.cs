@@ -21,7 +21,7 @@ namespace EA.UsageTracking.Tests.Integration.Events
             var results = await Mediator.Send(new GetEventsForApplicationQuery {PageNumber = 1, PageSize = 100});
 
             //Assert
-            Assert.AreEqual("Not available", results.Value.Total);
+            Assert.AreEqual(0, results.Value.Total);
         }
 
         [Test]
@@ -49,7 +49,7 @@ namespace EA.UsageTracking.Tests.Integration.Events
             var results = await Mediator.Send(new GetEventsForApplicationQuery { PageNumber = 1, PageSize = 100 });
 
             //Assert
-            Assert.AreEqual("3", results.Value.Total);
+            Assert.AreEqual(3, results.Value.Total);
         }
 
         [Test]

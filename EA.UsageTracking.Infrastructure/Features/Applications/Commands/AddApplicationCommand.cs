@@ -35,7 +35,7 @@ namespace EA.UsageTracking.Infrastructure.Features.Applications.Commands
 
         public async Task<Result<ApplicationDTO>> Handle(AddApplicationCommand request, CancellationToken cancellationToken)
         {
-            request.ApplicationDto.TenantId = _usageTrackingContext.TenantId;
+            request.ApplicationDto.ClientId = _usageTrackingContext.TenantId;
 
             if (_usageTrackingContext.Applications.Any())
             {

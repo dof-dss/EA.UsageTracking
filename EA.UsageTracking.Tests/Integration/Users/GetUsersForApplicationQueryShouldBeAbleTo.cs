@@ -58,7 +58,7 @@ namespace EA.UsageTracking.Tests.Integration.Users
             var results = await Mediator.Send(new GetUsersForApplicationQuery { PageNumber = 1, PageSize = 100 });
 
             //Assert
-            Assert.AreEqual("3", results.Value.Total);
+            Assert.AreEqual(3, results.Value.Total);
         }
 
         [Test]
@@ -96,7 +96,7 @@ namespace EA.UsageTracking.Tests.Integration.Users
             var results = await Mediator.Send(new GetUsersForApplicationQuery { PageNumber = 1, PageSize = 100 });
 
             //Assert
-            Assert.AreEqual("3", results.Value.Total);
+            Assert.AreEqual(3, results.Value.Total);
         }
     }
 }

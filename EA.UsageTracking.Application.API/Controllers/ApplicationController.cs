@@ -5,6 +5,7 @@ using System.Threading.Tasks;
 using EA.UsageTracking.Application.API.Attributes;
 using EA.UsageTracking.Core.DTOs;
 using EA.UsageTracking.Infrastructure.Features.Applications.Commands;
+using EA.UsageTracking.Infrastructure.Features.Applications.Queries;
 using EA.UsageTracking.Infrastructure.Features.Events.Commands;
 using EA.UsageTracking.SharedKernel.Extensions;
 using MediatR;
@@ -16,7 +17,6 @@ namespace EA.UsageTracking.Application.API.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
-    [IgnoreTenant]
     public class ApplicationController : ControllerBase
     {
         private readonly IMediator _mediator;
@@ -34,6 +34,12 @@ namespace EA.UsageTracking.Application.API.Controllers
         public async Task<IActionResult> OnBoard(string name) =>
             (await _mediator.Send(new AddApplicationCommand { ApplicationDto = new ApplicationDTO{Name = name} }))
             .OnBoth(r => r.IsSuccess ? (IActionResult)Ok(r.Value) : BadRequest(r.Error));
+
+        [HttpGet]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        public async Task<IActionResult> Get() =>
+            (await _mediator.Send(new GetApplicationQuery())).OnBoth(r => r.IsSuccess ? (IActionResult)Ok(r.Value) : NotFound(r.Error));
 
         [HttpPost("PostRedis/{key}/{value}")]
         [ApiExplorerSettings(IgnoreApi = true)]

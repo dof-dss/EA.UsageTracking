@@ -15,6 +15,7 @@ using EA.UsageTracking.SharedKernel.Constants;
 using EA.UsageTracking.SharedKernel.Extensions;
 using EA.UsageTracking.SharedKernel.Functional;
 using MediatR;
+using StackExchange.Redis;
 
 namespace EA.UsageTracking.Infrastructure.Features.Events.Commands
 {
@@ -36,10 +37,11 @@ namespace EA.UsageTracking.Infrastructure.Features.Events.Commands
             if (validateResults.IsFailure)
                 return Result.Fail(validateResults.Error);
 
-            var applicationEvent = new ApplicationEvent {Id = request.Id};
-            DbContext.ApplicationEvents.Remove(applicationEvent);
+            var applicationEvent = DbContext.ApplicationEvents.Find(request.Id).ToMaybe();
+            if(!applicationEvent.HasValue) return Result.Fail("Event does not exist");
+            DbContext.ApplicationEvents.Remove(applicationEvent.Value);
 
-            await DbContext.SaveChangesAsync();
+            await DbContext.SaveChangesAsync(cancellationToken);
 
             return Result.Ok();
         }

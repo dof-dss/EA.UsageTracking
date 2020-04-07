@@ -9,5 +9,7 @@ namespace EA.UsageTracking.Core.DTOs
     {
         public Guid Id { get; set; }
         public string Name { get; set; }
+        public string Email { get; set; }
+        public DateTime DateCreated { get; set; }
     }
 }
