@@ -29,7 +29,7 @@ namespace EA.UsageTracking.Infrastructure.Features.Usages.Commands
     public class AddUsageItemPublisherCommand : IRequest<Result>
     { 
         public int ApplicationEventId { get; set; }
-        public Guid ApplicationUserId { get; set; }
+        public string IdentityToken { get; set; }
     }
 
     public class AddUsageItemPublisherCommandHandler: IRequestHandler<AddUsageItemPublisherCommand, Result>
@@ -65,7 +65,7 @@ namespace EA.UsageTracking.Infrastructure.Features.Usages.Commands
                 TenantId = TenantId,
                 RequestId = Guid.NewGuid(),
                 ApplicationEventId = request.ApplicationEventId,
-                ApplicationUserId = request.ApplicationUserId
+                IdentityToken = request.IdentityToken
             };
 
             var validationResults = Validate(subscriberCommand);

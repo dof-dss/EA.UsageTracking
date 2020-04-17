@@ -2,6 +2,7 @@
 
   <PropertyGroup>
     <TargetFramework>netcoreapp3.1</TargetFramework>
+    <Configurations>Debug;Release;Staging</Configurations>
   </PropertyGroup>
 
   <ItemGroup>
@@ -31,6 +32,5 @@
     <ProjectReference Include="..\EA.UsageTracking.Infrastructure\EA.UsageTracking.Infrastructure.csproj" />
     <ProjectReference Include="..\EA.UsageTracking.SharedKernel\EA.UsageTracking.SharedKernel.csproj" />
   </ItemGroup>
-
 
 </Project>

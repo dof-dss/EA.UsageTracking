@@ -8,6 +8,9 @@ namespace EA.UsageTracking.SharedKernel.Constants
     {
         public static class ErrorMessages
         {
+            public const string NoTenant = "No Tenant Id";
+            public const string NoIdentityToken = "No Identity Token";
+            public const string NoEmail = "No Email";
             public const string NoTenantExists = "Invalid Tenant";
             public const string NoEventExists = "Event does not exist";
             public const string NoUserExists = "User does not exist";

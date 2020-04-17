@@ -3,6 +3,8 @@
   
   <PropertyGroup>
     <TargetFramework>netcoreapp3.1</TargetFramework>
+    <Configurations>Debug;Release;Staging</Configurations>
+    <LangVersion>8</LangVersion>
   </PropertyGroup>
   
   <ItemGroup>
@@ -73,6 +75,7 @@
     <PackageReference Include="SQLite" Version="3.13.0" />
     <PackageReference Include="NETStandard.Library" Version="2.0.3" />
     <PackageReference Include="StackExchange.Redis" Version="2.0.601" />
+    <PackageReference Include="System.IdentityModel.Tokens.Jwt" Version="5.5.0" />
   </ItemGroup>
   
   <ItemGroup>
