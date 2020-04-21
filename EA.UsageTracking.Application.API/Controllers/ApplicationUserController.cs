@@ -40,6 +40,7 @@ namespace EA.UsageTracking.Application.API.Controllers
             (await _mediator.Send(getUserDetailsQuery)).OnBoth(r => r.IsSuccess ? (IActionResult)Ok(r.Value) : NotFound(r.Error));
 
         [HttpPost]
+        [ApiExplorerSettings(IgnoreApi = true)]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         public async Task<IActionResult> Post([FromBody] ApplicationUserDTO userDTO) =>
