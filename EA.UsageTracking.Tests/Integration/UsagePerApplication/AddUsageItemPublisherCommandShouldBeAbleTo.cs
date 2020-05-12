@@ -1,13 +1,11 @@
 ﻿using System;
-using System.Net;
 using System.Threading.Tasks;
-using EA.UsageTracking.Core.DTOs;
 using EA.UsageTracking.Core.Entities;
-using EA.UsageTracking.Infrastructure.Features.Usages.Commands;
+using EA.UsageTracking.Infrastructure.Features.UsagesPerApplication.Commands;
 using EA.UsageTracking.SharedKernel.Constants;
 using NUnit.Framework;
 
-namespace EA.UsageTracking.Tests.Integration.Usage
+namespace EA.UsageTracking.Tests.Integration.UsagePerApplication
 {
     [TestFixture]
     class AddUsageItemPublisherCommandShouldBeAbleTo: BaseIntegration

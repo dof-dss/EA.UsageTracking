@@ -31,21 +31,33 @@ namespace EA.UsageTracking.Tests.Integration
     {
         protected readonly UsageTrackingContext DbContext;
         protected readonly IMediator Mediator;
+        private readonly Mock<IHttpContextAccessor> _mockAccessor;
 
         protected IUsageTrackingContextFactory UsageTrackingContextFactory { get; }
 
         public  BaseIntegration(): this(Guid.NewGuid())
         { }
 
+        public BaseIntegration(string userId): this()
+        {
+            _mockAccessor.Setup(x => x.HttpContext.User.Claims).Returns(new List<Claim>()
+            {
+                new Claim("username", userId)
+            });
+        }
+
         public BaseIntegration(Guid tenantGuid)
         {
             var services = new ServiceCollection();
             
-            var mockAccessor = new Mock<IHttpContextAccessor>();
-            mockAccessor.Setup(x => x.HttpContext.User.Claims).Returns(new List<Claim>(){ new Claim("client_id", tenantGuid.ToString()) });
-            mockAccessor.Setup(x => x.HttpContext.Request.Scheme).Returns("http");
-            mockAccessor.Setup(x => x.HttpContext.Request.Host).Returns(new HostString("test"));
-            services.AddSingleton<IHttpContextAccessor>(x => mockAccessor.Object);
+            _mockAccessor = new Mock<IHttpContextAccessor>();
+            _mockAccessor.Setup(x => x.HttpContext.User.Claims).Returns(new List<Claim>()
+            {
+                new Claim("client_id", tenantGuid.ToString())
+            });
+            _mockAccessor.Setup(x => x.HttpContext.Request.Scheme).Returns("http");
+            _mockAccessor.Setup(x => x.HttpContext.Request.Host).Returns(new HostString("test"));
+            services.AddSingleton<IHttpContextAccessor>(x => _mockAccessor.Object);
 
             var mockConnectionMultiplexer = new Mock<IConnectionMultiplexer>();
             mockConnectionMultiplexer.Setup(x => x.GetSubscriber(null)).Returns(new FakeSubscriber());

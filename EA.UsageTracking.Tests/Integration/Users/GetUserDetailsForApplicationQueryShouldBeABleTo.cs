@@ -6,7 +6,6 @@ using EA.UsageTracking.Application.API;
 using EA.UsageTracking.Core.DTOs;
 using EA.UsageTracking.Core.Entities;
 using EA.UsageTracking.Infrastructure.Features.Events.Queries;
-using EA.UsageTracking.Infrastructure.Features.Usages.Commands;
 using EA.UsageTracking.Infrastructure.Features.Users.Commands;
 using EA.UsageTracking.Infrastructure.Features.Users.Queries;
 using EA.UsageTracking.SharedKernel.Constants;

@@ -6,8 +6,8 @@ using System.Threading.Tasks;
 using EA.UsageTracking.Application.API.Attributes;
 using EA.UsageTracking.Core.DTOs;
 using EA.UsageTracking.Infrastructure.Data;
-using EA.UsageTracking.Infrastructure.Features.Usages.Commands;
-using EA.UsageTracking.Infrastructure.Features.Usages.Queries;
+using EA.UsageTracking.Infrastructure.Features.UsagesPerApplication.Commands;
+using EA.UsageTracking.Infrastructure.Features.UsagesPerApplication.Queries;
 using EA.UsageTracking.SharedKernel.Constants;
 using EA.UsageTracking.SharedKernel.Extensions;
 using MediatR;
@@ -28,22 +28,18 @@ namespace EA.UsageTracking.Application.API.Controllers
     {
         private readonly UsageTrackingContext _usageTrackingContext;
         private readonly IMediator _mediator;
-        private  readonly IConnectionMultiplexer _connectionMultiplexer;
-        private readonly HttpContext _httpContext;
 
-        public ApplicationUsageController(IUsageTrackingContextFactory usageTrackingContextFactory, IMediator mediator, 
-            IConnectionMultiplexer connectionMultiplexer, IHttpContextAccessor httpContextAccessor)
+        public ApplicationUsageController(IUsageTrackingContextFactory usageTrackingContextFactory, IMediator mediator)
         {
             _usageTrackingContext = usageTrackingContextFactory.UsageTrackingContext;
             _mediator = mediator;
-            _connectionMultiplexer = connectionMultiplexer;
-            _httpContext = httpContextAccessor.HttpContext;
         }
 
         [HttpGet]
         [IgnoreParameter(ParameterToIgnore = "ApiRoute")]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        [Authorize(Policy = Constants.Policy.UsageApp)]
         public async Task<IActionResult> GetAllForApplication([FromQuery] GetUsagesForApplicationQuery getUsagesForApplicationQuery) =>
             (await _mediator.Send(getUsagesForApplicationQuery)).OnBoth(r => r.IsSuccess ? (IActionResult)Ok(r.Value) : BadRequest(r.Error));
 
@@ -73,6 +69,7 @@ namespace EA.UsageTracking.Application.API.Controllers
         [HttpPost]
         [ProducesResponseType(StatusCodes.Status201Created)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        [Authorize(Policy = Constants.Policy.UsageApp)]
         public async Task<IActionResult> Post([FromBody] AddUsageItemPublisherCommand publisherCommand) =>
             (await _mediator.Send(publisherCommand))
                 .OnBoth(r => r.IsSuccess ? (IActionResult)StatusCode(201) : BadRequest(r.Error));

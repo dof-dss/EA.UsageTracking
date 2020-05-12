@@ -46,12 +46,15 @@ namespace EA.UsageTracking.Infrastructure.Features.Users.Queries
             var pagination = Mapper.Map<PaginationDetails>(message)
                 .WithTotal(DbContext.ApplicationUsers.Count(ua => ua.UserToApplications.Any(a => a.Application.TenantId == DbContext.TenantId)));
 
-            var results = DbContext.ApplicationUsers
+            var query = DbContext.ApplicationUsers
                 .AsNoTracking()
+                .Include(ua => ua.UserToApplications)
+                .Where(ua => ua.UserToApplications.Any(a => a.Application.TenantId == DbContext.TenantId));
+
+            var results = query
                 .OrderBy(u => u.Id)
                 .Skip(pagination.PreviousPageNumber * message.PageSize)
                 .Take(pagination.PageSize)
-                .Where(ua => ua.UserToApplications.Any(a => a.Application.TenantId == DbContext.TenantId))
                 .Select(u => Mapper.Map<ApplicationUserDTO>(u))
                 .ToList();
 

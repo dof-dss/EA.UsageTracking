@@ -2,15 +2,18 @@
 using System.Linq;
 using System.Threading.Tasks;
 using EA.UsageTracking.Application.API;
-using EA.UsageTracking.Infrastructure.Features.Usages.Queries;
+using EA.UsageTracking.Infrastructure.Features.UsagesPerUser.Queries;
 using EA.UsageTracking.SharedKernel.Constants;
 using NUnit.Framework;
 
-namespace EA.UsageTracking.Tests.Integration.Usage
+namespace EA.UsageTracking.Tests.Integration.UsagePerUser
 {
     [TestFixture]
-    public class GetUsagesForUserQueryShouldBeAbleTo: BaseIntegration
+    public class GetUsagesShouldBeAbleTo: BaseIntegration
     {
+        public GetUsagesShouldBeAbleTo(): base("b0ed668d-7ef2-4a23-a333-94ad278f4111")
+        { }
+
         [Test]
         public async Task GetUsagesForUser()
         {
@@ -18,35 +21,10 @@ namespace EA.UsageTracking.Tests.Integration.Usage
             new SeedData(DbContext).PopulateTestData();
 
             //Act
-            var results = await Mediator.Send(new GetUsagesForUserQuery {Id = Guid.Parse("b0ed668d-7ef2-4a23-a333-94ad278f4111") });
+            var results = await Mediator.Send(new GetUsagesQuery());
 
             //Assert
             Assert.AreEqual(1, results.Value.Data.Count());
-        }
-
-        [Test]
-        public async Task GetNoUsagesForUser()
-        {
-            //Arrange
-            var app = new Core.Entities.Application();
-            DbContext.Applications.Add(app);
-            DbContext.SaveChanges();
-
-            //Act
-            var results = await Mediator.Send(new GetUsagesForUserQuery { Id = Guid.NewGuid() });
-
-            //Assert
-            Assert.AreEqual(0, results.Value.Data.Count());
-        }
-
-        [Test]
-        public async Task HandleGetUsagesWithNoTenant()
-        {
-            //Act
-            var results = await Mediator.Send(new GetUsagesForUserQuery { });
-
-            //Assert
-            Assert.AreEqual(Constants.ErrorMessages.NoTenantExists, results.Error);
         }
 
         [Test]
@@ -58,7 +36,7 @@ namespace EA.UsageTracking.Tests.Integration.Usage
             DbContext.SaveChanges();
 
             //Act
-            var results = await Mediator.Send(new GetUsagesForUserQuery { PageNumber = 0 });
+            var results = await Mediator.Send(new GetUsagesQuery { PageNumber = 0 });
 
             //Assert
             Assert.AreEqual(Constants.ErrorMessages.InvalidPageNumber, results.Error);
@@ -73,7 +51,7 @@ namespace EA.UsageTracking.Tests.Integration.Usage
             DbContext.SaveChanges();
 
             //Act
-            var results = await Mediator.Send(new GetUsagesForUserQuery { PageSize = 0 });
+            var results = await Mediator.Send(new GetUsagesQuery { PageSize = 0 });
 
             //Assert
             Assert.AreEqual(Constants.ErrorMessages.InvalidPageSize, results.Error);
@@ -88,7 +66,7 @@ namespace EA.UsageTracking.Tests.Integration.Usage
             DbContext.SaveChanges();
 
             //Act
-            var results = await Mediator.Send(new GetUsagesForUserQuery { PageNumber = 0, PageSize = 0 });
+            var results = await Mediator.Send(new GetUsagesQuery { PageNumber = 0, PageSize = 0 });
 
             //Assert
             Assert.AreEqual($"{Constants.ErrorMessages.InvalidPageNumber},{Constants.ErrorMessages.InvalidPageSize}", results.Error);

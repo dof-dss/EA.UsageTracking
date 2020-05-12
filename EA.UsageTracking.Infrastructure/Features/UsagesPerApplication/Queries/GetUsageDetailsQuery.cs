@@ -3,14 +3,13 @@ using System.Threading.Tasks;
 using AutoMapper;
 using EA.UsageTracking.Core.DTOs;
 using EA.UsageTracking.Infrastructure.Data;
-using EA.UsageTracking.SharedKernel;
 using EA.UsageTracking.SharedKernel.Constants;
 using EA.UsageTracking.SharedKernel.Extensions;
 using EA.UsageTracking.SharedKernel.Functional;
 using MediatR;
 using Microsoft.EntityFrameworkCore;
 
-namespace EA.UsageTracking.Infrastructure.Features.Usages.Queries
+namespace EA.UsageTracking.Infrastructure.Features.UsagesPerApplication.Queries
 {
 
     public class GetUsageDetailsQuery : IRequest<Result<UsageItemDTO>>

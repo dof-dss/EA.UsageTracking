@@ -13,7 +13,7 @@ using EA.UsageTracking.Core.DTOs;
 using EA.UsageTracking.Core.Entities;
 using EA.UsageTracking.Infrastructure.Data;
 using EA.UsageTracking.Infrastructure.Features.Pagination;
-using EA.UsageTracking.Infrastructure.Features.Usages.Commands;
+using EA.UsageTracking.Infrastructure.Features.UsagesPerApplication.Commands;
 using EA.UsageTracking.SharedKernel.Constants;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;

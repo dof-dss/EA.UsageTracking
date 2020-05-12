@@ -10,6 +10,7 @@ using EA.UsageTracking.Infrastructure;
 using EA.UsageTracking.Infrastructure.Behaviors;
 using EA.UsageTracking.Infrastructure.Data;
 using EA.UsageTracking.Infrastructure.Features.Pagination;
+using EA.UsageTracking.SharedKernel.Constants;
 using EA.UsageTracking.SharedKernel.Functional;
 using MediatR;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
@@ -138,9 +139,9 @@ namespace EA.UsageTracking.Application.API
 
             services.AddAuthorization(options =>
             {
-                options.AddPolicy("usage-api/read_usage", policy => policy.Requirements.Add(new HasScopeRequirement("usage-api/read_usage", issuer)));
-                options.AddPolicy("usage-api/create_usage", policy => policy.Requirements.Add(new HasScopeRequirement("usage-api/create_usage", issuer)));
-                options.AddPolicy("usage-api/usage_admin", policy => policy.Requirements.Add(new HasScopeRequirement("usage-api/usage_admin", issuer)));
+                options.AddPolicy(Constants.Policy.UsageUser, policy => policy.Requirements.Add(new HasScopeRequirement(Constants.Policy.UsageUser, issuer)));
+                options.AddPolicy(Constants.Policy.UsageApp, policy => policy.Requirements.Add(new HasScopeRequirement(Constants.Policy.UsageApp, issuer)));
+                options.AddPolicy(Constants.Policy.UsageAdmin, policy => policy.Requirements.Add(new HasScopeRequirement(Constants.Policy.UsageAdmin, issuer)));
             });
 
             services.AddSingleton<IAuthorizationHandler, HasScopeHandler>();

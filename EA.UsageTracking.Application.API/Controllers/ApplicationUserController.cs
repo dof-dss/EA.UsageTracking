@@ -8,8 +8,10 @@ using EA.UsageTracking.Infrastructure.Features.Events.Commands;
 using EA.UsageTracking.Infrastructure.Features.Events.Queries;
 using EA.UsageTracking.Infrastructure.Features.Users.Commands;
 using EA.UsageTracking.Infrastructure.Features.Users.Queries;
+using EA.UsageTracking.SharedKernel.Constants;
 using EA.UsageTracking.SharedKernel.Extensions;
 using MediatR;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 
@@ -17,6 +19,7 @@ namespace EA.UsageTracking.Application.API.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
+    [Authorize(Policy = Constants.Policy.UsageApp)]
     public class ApplicationUserController : ControllerBase
     {
         private readonly IMediator _mediator;

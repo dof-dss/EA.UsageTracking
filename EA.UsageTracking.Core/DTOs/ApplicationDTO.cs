@@ -10,5 +10,6 @@ namespace EA.UsageTracking.Core.DTOs
         public string Name { get; set; }
         public string ClientId { get; set; }
         public DateTime DateCreated { get; set; }
+        public bool IsRegistered { get; set; }
     }
 }

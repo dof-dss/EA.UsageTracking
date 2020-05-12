@@ -1,11 +1,8 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
-using EA.UsageTracking.Infrastructure.Features.Usages.Queries;
+﻿using EA.UsageTracking.Infrastructure.Features.UsagesPerApplication.Queries;
 using EA.UsageTracking.SharedKernel.Constants;
 using FluentValidation;
 
-namespace EA.UsageTracking.Infrastructure.Features.Usages.Validation
+namespace EA.UsageTracking.Infrastructure.Features.UsagesPerApplication.Validation
 {
     public class GetUsagesForUserValidator: AbstractValidator<GetUsagesForUserQuery>
     {

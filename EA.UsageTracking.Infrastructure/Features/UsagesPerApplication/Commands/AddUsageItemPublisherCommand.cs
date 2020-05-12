@@ -1,30 +1,16 @@
 ﻿using System;
 using System.Linq;
-using System.Security.Claims;
 using System.Threading;
 using System.Threading.Tasks;
-using AutoMapper;
-using EA.UsageTracking.Core.DTOs;
-using EA.UsageTracking.Core.Entities;
-using EA.UsageTracking.Infrastructure.Data;
-using EA.UsageTracking.Infrastructure.Features.Common;
-using EA.UsageTracking.Infrastructure.Features.Events.Commands;
-using EA.UsageTracking.Infrastructure.Features.Pagination;
-using EA.UsageTracking.Infrastructure.Features.Usages.Validation;
-using EA.UsageTracking.SharedKernel;
-using EA.UsageTracking.SharedKernel.Constants;
+using EA.UsageTracking.Infrastructure.Features.UsagesPerApplication.Validation;
 using EA.UsageTracking.SharedKernel.Extensions;
 using EA.UsageTracking.SharedKernel.Functional;
 using MediatR;
 using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.Mvc.TagHelpers;
-using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.Caching.Distributed;
-using Microsoft.Extensions.DependencyInjection;
 using Newtonsoft.Json;
 using StackExchange.Redis;
 
-namespace EA.UsageTracking.Infrastructure.Features.Usages.Commands
+namespace EA.UsageTracking.Infrastructure.Features.UsagesPerApplication.Commands
 {
     public class AddUsageItemPublisherCommand : IRequest<Result>
     { 

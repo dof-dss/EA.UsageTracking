@@ -10,6 +10,7 @@ namespace EA.UsageTracking.Core.DTOs
         public int ApplicationEventId { get; set; }
         public Guid ApplicationUserId { get; set; }
         public string ApplicationUserName { get; set; }
+        public string ApplicationUserEmail { get; set; }
         public string ApplicationEventName { get; set; }
         public string ApplicationName { get; set; }
         public DateTime DateCreated { get; set; }

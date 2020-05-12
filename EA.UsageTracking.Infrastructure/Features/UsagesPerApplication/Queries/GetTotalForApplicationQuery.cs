@@ -1,18 +1,12 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
-using System.Threading;
+﻿using System.Threading;
 using System.Threading.Tasks;
 using EA.UsageTracking.Infrastructure.Data;
+using EA.UsageTracking.Infrastructure.Features.Common;
 using EA.UsageTracking.SharedKernel.Functional;
 using MediatR;
-using System.Linq;
-using EA.UsageTracking.Core.DTOs;
-using EA.UsageTracking.Infrastructure.Features.Common;
-using EA.UsageTracking.Infrastructure.Features.Pagination;
 using Microsoft.EntityFrameworkCore;
 
-namespace EA.UsageTracking.Infrastructure.Features.Usages.Queries
+namespace EA.UsageTracking.Infrastructure.Features.UsagesPerApplication.Queries
 {
     public class GetTotalForApplicationQuery: IRequest<Result<int>>
     {

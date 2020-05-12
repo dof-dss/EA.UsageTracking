@@ -4,8 +4,12 @@ using System.IdentityModel.Tokens.Jwt;
 using System.Linq;
 using System.Text;
 using EA.UsageTracking.Core.DTOs;
+using EA.UsageTracking.Core.Entities;
+using EA.UsageTracking.Infrastructure.Features.Pagination;
+using EA.UsageTracking.SharedKernel.Constants;
 using EA.UsageTracking.SharedKernel.Extensions;
 using EA.UsageTracking.SharedKernel.Functional;
+using Microsoft.AspNetCore.Http;
 
 namespace EA.UsageTracking.Infrastructure.Features.Common
 {
@@ -33,6 +37,27 @@ namespace EA.UsageTracking.Infrastructure.Features.Common
             };
 
             return Result.Ok(applicationUserDto);
+        }
+
+        public static Result<Guid> GetUserId(this HttpContext httpContext)
+        {
+            var subResult = httpContext.User.Claims.FirstOrDefault(c => c.Type == "username")
+                .ToMaybe().ToResult(Constants.ErrorMessages.InvalidClaim);
+            if (subResult.IsFailure)
+                return Result.Fail<Guid>(subResult.Error);
+
+            return !Guid.TryParse(subResult.Value.Value, out var userId) 
+                ? Result.Fail<Guid>(Constants.ErrorMessages.InvalidGuid) 
+                : Result.Ok(userId);
+        }
+
+        public static void AssociateUserToApp(this ApplicationUser applicationUser, Application application)
+        {
+            application.UserToApplications.Add(new UserToApplication
+            {
+                User = applicationUser,
+                Application = application
+            });
         }
     }
 }

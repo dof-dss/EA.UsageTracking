@@ -1,11 +1,11 @@
 ﻿using System.Linq;
 using System.Threading.Tasks;
 using EA.UsageTracking.Application.API;
-using EA.UsageTracking.Infrastructure.Features.Usages.Queries;
+using EA.UsageTracking.Infrastructure.Features.UsagesPerApplication.Queries;
 using EA.UsageTracking.SharedKernel.Constants;
 using NUnit.Framework;
 
-namespace EA.UsageTracking.Tests.Integration.Usage
+namespace EA.UsageTracking.Tests.Integration.UsagePerApplication
 {
     [TestFixture()]
     public class GetUsagesForApplicationQueryShouldBeAbleTo: BaseIntegration

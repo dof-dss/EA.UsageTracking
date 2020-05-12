@@ -7,8 +7,10 @@ using EA.UsageTracking.Core.DTOs;
 using EA.UsageTracking.Infrastructure.Features.Applications.Commands;
 using EA.UsageTracking.Infrastructure.Features.Applications.Queries;
 using EA.UsageTracking.Infrastructure.Features.Events.Commands;
+using EA.UsageTracking.SharedKernel.Constants;
 using EA.UsageTracking.SharedKernel.Extensions;
 using MediatR;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Caching.Distributed;
@@ -31,6 +33,7 @@ namespace EA.UsageTracking.Application.API.Controllers
         [HttpPost("{name}")]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        [Authorize(Policy = Constants.Policy.UsageApp)]
         public async Task<IActionResult> OnBoard(string name) =>
             (await _mediator.Send(new AddApplicationCommand { ApplicationDto = new ApplicationDTO{Name = name} }))
             .OnBoth(r => r.IsSuccess ? (IActionResult)Ok(r.Value) : BadRequest(r.Error));
@@ -38,8 +41,24 @@ namespace EA.UsageTracking.Application.API.Controllers
         [HttpGet]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        [Authorize(Policy = Constants.Policy.UsageApp)]
         public async Task<IActionResult> Get() =>
             (await _mediator.Send(new GetApplicationQuery())).OnBoth(r => r.IsSuccess ? (IActionResult)Ok(r.Value) : NotFound(r.Error));
+
+        [HttpGet("All")]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        [Authorize(Policy = Constants.Policy.UsageUser)]
+        public async Task<IActionResult> GetAll() =>
+            (await _mediator.Send(new GetAllApplicationsQuery())).OnBoth(r => r.IsSuccess ? (IActionResult)Ok(r.Value) : NotFound(r.Error));
+
+        [HttpPost("Register")]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        [Authorize(Policy = Constants.Policy.UsageUser)]
+        public async Task<IActionResult> Register() =>
+            (await _mediator.Send(new RegisterCommand())).OnBoth(r => r.IsSuccess ? (IActionResult)Ok(r.Value) : NotFound(r.Error));
+
 
         [HttpPost("PostRedis/{key}/{value}")]
         [ApiExplorerSettings(IgnoreApi = true)]

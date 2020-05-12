@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text.Json.Serialization;
 using System.Threading;
 using System.Threading.Tasks;
-using EA.UsageTracking.Infrastructure.Features.Usages.Commands;
+using EA.UsageTracking.Infrastructure.Features.UsagesPerApplication.Commands;
 using MediatR;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;

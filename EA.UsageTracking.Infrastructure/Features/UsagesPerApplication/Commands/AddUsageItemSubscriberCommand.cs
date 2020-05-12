@@ -1,28 +1,19 @@
 ﻿using System;
-using System.IdentityModel.Tokens.Jwt;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
-using AutoMapper;
-using EA.UsageTracking.Core.DTOs;
 using EA.UsageTracking.Core.Entities;
 using EA.UsageTracking.Infrastructure.Data;
-using EA.UsageTracking.Infrastructure.Features.Common;
-using EA.UsageTracking.Infrastructure.Features.Events.Commands;
-using EA.UsageTracking.Infrastructure.Features.Pagination;
-using EA.UsageTracking.Infrastructure.Features.Usages.Validation;
+using EA.UsageTracking.Infrastructure.Features.UsagesPerApplication.Validation;
 using EA.UsageTracking.Infrastructure.Features.Users.Commands;
-using EA.UsageTracking.SharedKernel;
 using EA.UsageTracking.SharedKernel.Constants;
 using EA.UsageTracking.SharedKernel.Extensions;
 using EA.UsageTracking.SharedKernel.Functional;
 using MediatR;
-using Microsoft.AspNetCore.Mvc.TagHelpers;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.Caching.Distributed;
 using Microsoft.Extensions.DependencyInjection;
 
-namespace EA.UsageTracking.Infrastructure.Features.Usages.Commands
+namespace EA.UsageTracking.Infrastructure.Features.UsagesPerApplication.Commands
 {
     public class AddUsageItemSubscriberCommand : IRequest<Result<int>>
     { 
