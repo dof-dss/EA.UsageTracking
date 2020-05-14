@@ -12,6 +12,7 @@ using EA.UsageTracking.Infrastructure.Data;
 using EA.UsageTracking.Infrastructure.Features.Pagination;
 using EA.UsageTracking.SharedKernel.Constants;
 using EA.UsageTracking.SharedKernel.Functional;
+using EA.UsageTracking.Tests.Integration;
 using MediatR;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;
@@ -23,6 +24,8 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.IdentityModel.Tokens;
+using Moq;
+using StackExchange.Redis;
 using Steeltoe.CloudFoundry.Connector.Redis;
 
 namespace EA.UsageTracking.Tests.Functional
@@ -55,6 +58,13 @@ namespace EA.UsageTracking.Tests.Functional
 
             services.AddSingleton<IAuthorizationHandler, HasScopeTestHandler>();
 
+        }
+
+        protected override void ConfigureRedis(IServiceCollection services)
+        {
+            var mockConnectionMultiplexer = new Mock<IConnectionMultiplexer>();
+            mockConnectionMultiplexer.Setup(x => x.GetSubscriber(null)).Returns(new FakeSubscriber());
+            services.AddSingleton(mockConnectionMultiplexer.Object);
         }
 
         public override void Configure(IApplicationBuilder app, IWebHostEnvironment env, IHostApplicationLifetime lifetime,

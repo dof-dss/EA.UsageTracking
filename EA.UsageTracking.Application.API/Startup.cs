@@ -61,14 +61,18 @@ namespace EA.UsageTracking.Application.API
             ConfigureSwagger(services);
             ConfigureServiceDescription(services);
             ConfigureAuthentication(services);
-
-            services.AddDistributedRedisCache(Configuration);
-            services.AddRedisConnectionMultiplexer(Configuration);
+            ConfigureRedis(services);
 
             services.AddSingleton<IUriService, UriService>();
             services.AddTransient(typeof(IPipelineBehavior<,>), typeof(LoggingBehavior<,>));
             services.AddTransient(typeof(IPipelineBehavior<,>), typeof(ExceptionBehavior<,>));
             services.AddTransient<IUsageTrackingContextFactory, UsageTrackingContextFactory>();
+        }
+
+        protected virtual void ConfigureRedis(IServiceCollection services)
+        {
+            services.AddDistributedRedisCache(Configuration);
+            services.AddRedisConnectionMultiplexer(Configuration);
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
