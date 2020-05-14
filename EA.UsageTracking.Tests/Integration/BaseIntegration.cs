@@ -29,11 +29,13 @@ namespace EA.UsageTracking.Tests.Integration
     [TestFixture]
     public class BaseIntegration
     {
-        protected readonly UsageTrackingContext DbContext;
-        protected readonly IMediator Mediator;
-        private readonly Mock<IHttpContextAccessor> _mockAccessor;
+        protected UsageTrackingContext DbContext;
+        protected  IMediator Mediator;
+        private  Mock<IHttpContextAccessor> _mockAccessor;
+        private ServiceCollection _services = new ServiceCollection();
+        private string _tenantId;
 
-        protected IUsageTrackingContextFactory UsageTrackingContextFactory { get; }
+        protected IUsageTrackingContextFactory UsageTrackingContextFactory { get; set; }
 
         public  BaseIntegration(): this(Guid.NewGuid())
         { }
@@ -42,14 +44,14 @@ namespace EA.UsageTracking.Tests.Integration
         {
             _mockAccessor.Setup(x => x.HttpContext.User.Claims).Returns(new List<Claim>()
             {
+                new Claim("client_id", _tenantId),
                 new Claim("username", userId)
             });
         }
 
         public BaseIntegration(Guid tenantGuid)
         {
-            var services = new ServiceCollection();
-            
+            _tenantId = tenantGuid.ToString();
             _mockAccessor = new Mock<IHttpContextAccessor>();
             _mockAccessor.Setup(x => x.HttpContext.User.Claims).Returns(new List<Claim>()
             {
@@ -57,46 +59,50 @@ namespace EA.UsageTracking.Tests.Integration
             });
             _mockAccessor.Setup(x => x.HttpContext.Request.Scheme).Returns("http");
             _mockAccessor.Setup(x => x.HttpContext.Request.Host).Returns(new HostString("test"));
-            services.AddSingleton<IHttpContextAccessor>(x => _mockAccessor.Object);
+            _services.AddSingleton<IHttpContextAccessor>(x => _mockAccessor.Object);
 
             var mockConnectionMultiplexer = new Mock<IConnectionMultiplexer>();
             mockConnectionMultiplexer.Setup(x => x.GetSubscriber(null)).Returns(new FakeSubscriber());
-            services.AddSingleton(mockConnectionMultiplexer.Object);
+            _services.AddSingleton(mockConnectionMultiplexer.Object);
 
-            services.AddLogging();
+            _services.AddLogging();
 
-            services.AddDbContext<UsageTrackingContext>(options => options.UseInMemoryDatabase("InMemoryDbForTesting"));
-            services.AddSingleton(sp =>
-            {
-                var optionsBuilder = new DbContextOptionsBuilder<UsageTrackingContext>();
-                return optionsBuilder.UseInMemoryDatabase("InMemoryDbForTesting").Options;
-            });
-
-            services.AddAutoMapper(typeof(UsageTrackingContext).GetTypeInfo().Assembly);
-            services.AddMediatR(typeof(UsageTrackingContext).GetTypeInfo().Assembly,
+            _services.AddAutoMapper(typeof(UsageTrackingContext).GetTypeInfo().Assembly);
+            _services.AddMediatR(typeof(UsageTrackingContext).GetTypeInfo().Assembly,
                 typeof(Result).GetTypeInfo().Assembly,
                 typeof(UsageItem).GetTypeInfo().Assembly);
 
-            services.AddSingleton<IUriService, UriService>();
-            services.AddTransient(typeof(IPipelineBehavior<,>), typeof(LoggingBehavior<,>));
-            services.AddTransient(typeof(IPipelineBehavior<,>), typeof(ExceptionBehavior<,>));
-            services.AddTransient<IUsageTrackingContextFactory, UsageTrackingContextFactory>();
+            _services.AddSingleton<IUriService, UriService>();
+            _services.AddTransient(typeof(IPipelineBehavior<,>), typeof(LoggingBehavior<,>));
+            _services.AddTransient(typeof(IPipelineBehavior<,>), typeof(ExceptionBehavior<,>));
+            _services.AddTransient<IUsageTrackingContextFactory, UsageTrackingContextFactory>();
+        }
 
-            var servicesProvider = services.BuildServiceProvider();
+        [SetUp]
+        public void Setup()
+        {
+            var randomInMemoryDbName = _tenantId + "-" + Guid.NewGuid();
+            _services.AddDbContext<UsageTrackingContext>(options => options.UseInMemoryDatabase(randomInMemoryDbName));
+            _services.AddSingleton(sp =>
+            {
+                var optionsBuilder = new DbContextOptionsBuilder<UsageTrackingContext>();
+                return optionsBuilder.UseInMemoryDatabase(randomInMemoryDbName).Options;
+            });
+
+            var servicesProvider = _services.BuildServiceProvider();
 
             Mediator = servicesProvider.GetRequiredService<IMediator>();
-
             UsageTrackingContextFactory = servicesProvider.GetRequiredService<IUsageTrackingContextFactory>();
             DbContext = UsageTrackingContextFactory.UsageTrackingContext;
         }
 
-        [TearDown]
-        public void CleanUp()
-        {
-            DbContext.PurgeTable(DbContext.UsageItems);
-            DbContext.PurgeTable(DbContext.ApplicationUsers);
-            DbContext.PurgeTable(DbContext.ApplicationEvents);
-            DbContext.PurgeTable(DbContext.Applications);
-        }
+        //[TearDown]
+        //public void CleanUp()
+        //{
+        //    DbContext.PurgeTable(DbContext.UsageItems);
+        //    DbContext.PurgeTable(DbContext.ApplicationUsers);
+        //    DbContext.PurgeTable(DbContext.ApplicationEvents);
+        //    DbContext.PurgeTable(DbContext.Applications);
+        //}
     }
 }

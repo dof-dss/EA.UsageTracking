@@ -56,8 +56,8 @@ namespace EA.UsageTracking.Application.API.Controllers
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [Authorize(Policy = Constants.Policy.UsageUser)]
-        public async Task<IActionResult> Register() =>
-            (await _mediator.Send(new RegisterCommand())).OnBoth(r => r.IsSuccess ? (IActionResult)Ok(r.Value) : NotFound(r.Error));
+        public async Task<IActionResult> Register(RegisterCommand registerCommand) =>
+            (await _mediator.Send(registerCommand)).OnBoth(r => r.IsSuccess ? (IActionResult)Ok() : NotFound(r.Error));
 
 
         [HttpPost("PostRedis/{key}/{value}")]

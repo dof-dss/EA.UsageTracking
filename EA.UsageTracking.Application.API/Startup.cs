@@ -112,7 +112,7 @@ namespace EA.UsageTracking.Application.API
             });
         }
 
-        private void ConfigureUsageTrackingContext(IServiceCollection services)
+        protected void ConfigureUsageTrackingContext(IServiceCollection services)
         {
             services.AddDbContext<UsageTrackingContext>(options => options.UseMySql(Configuration));
 
@@ -124,7 +124,7 @@ namespace EA.UsageTracking.Application.API
             });
         }
 
-        private void ConfigureAuthentication(IServiceCollection services)
+        protected virtual void ConfigureAuthentication(IServiceCollection services)
         {
             var issuer = Configuration["issuer"];
             services.AddAuthentication(x =>
@@ -148,7 +148,7 @@ namespace EA.UsageTracking.Application.API
 
         }
 
-        private void ConfigureSwagger(IServiceCollection services)
+        protected void ConfigureSwagger(IServiceCollection services)
         {
             services.AddSwaggerGen(c =>
             {
@@ -183,7 +183,7 @@ namespace EA.UsageTracking.Application.API
             });
         }
 
-        private void ConfigureServiceDescription(IServiceCollection services)
+        protected void ConfigureServiceDescription(IServiceCollection services)
         {
             services.Configure<ServiceConfig>(config =>
             {

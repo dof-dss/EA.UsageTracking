@@ -16,7 +16,7 @@ using Microsoft.EntityFrameworkCore;
 
 namespace EA.UsageTracking.Infrastructure.Features.Applications.Commands
 {
-    public class RegisterCommand : IRequest<Result<ApplicationDTO>>
+    public class RegisterCommand : IRequest<Result>
     {
         public int ApplicationId { get; set; }
         public string IdentityToken { get; set; }
@@ -45,6 +45,7 @@ namespace EA.UsageTracking.Infrastructure.Features.Applications.Commands
                 var userId = userIdResult.Value;
 
                 var applicationResult = _usageTrackingContext.Applications
+                    .IgnoreQueryFilters()
                     .Include(ua => ua.UserToApplications)
                     .SingleOrDefault(a => a.Id == request.ApplicationId)
                     .ToMaybe().ToResult(Constants.ErrorMessages.NoTenant);
