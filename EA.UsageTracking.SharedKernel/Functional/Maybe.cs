@@ -6,6 +6,21 @@ namespace EA.UsageTracking.SharedKernel.Functional
 {
     public struct Maybe<T>
     {
+        public bool Equals(Maybe<T> other)
+        {
+            return Equals(_values, other._values);
+        }
+
+        public override bool Equals(object obj)
+        {
+            return obj is Maybe<T> other && Equals(other);
+        }
+
+        public override int GetHashCode()
+        {
+            return (_values != null ? _values.GetHashCode() : 0);
+        }
+
         readonly IEnumerable<T> _values;
 
         public static Maybe<T> Some(T value)

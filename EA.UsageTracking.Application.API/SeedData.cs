@@ -15,14 +15,7 @@ namespace EA.UsageTracking.Application.API
             _usageTrackingContext = usageTrackingContext;
             App = CreateApp();
             _usageTrackingContext.Applications.Add(App);
-            try
-            {
-                _usageTrackingContext.SaveChanges();
-            }
-            catch (ArgumentException ex)
-            {
-                //Do Nothing
-            }
+            _usageTrackingContext.SaveChanges();
         }
 
         private Core.Entities.Application CreateApp()
@@ -85,14 +78,8 @@ namespace EA.UsageTracking.Application.API
 
             _usageTrackingContext.UsageItems.Add(usageItem1);
             _usageTrackingContext.UsageItems.Add(usageItem2);
-            try
-            {
-                _usageTrackingContext.SaveChanges();
-            }
-            catch (ArgumentException ex)
-            {
-                //Do Nothing
-            }
+            _usageTrackingContext.SaveChanges();
+
         }
     }
 }
