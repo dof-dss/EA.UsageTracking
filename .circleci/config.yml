@@ -23,6 +23,14 @@ jobs:
       - run:
           name: "Build Application"
           command: dotnet build
+  publish:
+    executor:
+      name: windows/default
+    steps:
+      - checkout
+      - run:
+          name: "Publish Application"
+          command: dotnet publish
 workflows:
   build-and-test:
     jobs:
@@ -30,3 +38,11 @@ workflows:
       - build:
           requires:
             - test
+      - publish:
+          requires:
+            - test
+            - build
+          filters:
+            branch:
+              only:
+                - master
