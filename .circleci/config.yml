@@ -43,6 +43,6 @@ workflows:
             - test
             - build
           filters:
-            branch:
+            branches:
               only:
                 - master
