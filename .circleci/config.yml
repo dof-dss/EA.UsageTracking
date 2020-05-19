@@ -58,8 +58,9 @@ jobs:
       - attach_workspace:
           # Must be absolute path or relative path from working_directory
           at: /tmp
-      - run: cd tmp
-      - run: ls
+      - run: |
+          cd tmp
+          ls
       - install_cmd
       - run: cf push
 workflows:
