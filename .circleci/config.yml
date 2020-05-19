@@ -44,7 +44,7 @@ jobs:
       - run:
           name: "Publish Application"
           command: dotnet publish
-      - run: cp maifest.yml EA.UsageTracking.Application.API\bin\Debug\netcoreapp3.1\publish
+      - run: cp manifest.yml EA.UsageTracking.Application.API\bin\Debug\netcoreapp3.1\publish
       - persist_to_workspace:
           # Must be an absolute path, or relative path from working_directory. This is a directory on the container which is 
           # taken to be the root directory of the workspace.
