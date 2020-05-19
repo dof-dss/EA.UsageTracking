@@ -59,7 +59,7 @@ jobs:
           # Must be absolute path or relative path from working_directory
           at: /tmp
       - run: cd tmp
-      - run: ls -l
+      - run: ls
       - install_cmd
       - run: cf push
 workflows:
