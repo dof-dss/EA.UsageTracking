@@ -64,7 +64,7 @@ workflows:
                   only:
                     - master
           context: govuk-paas-sandbox
-          domain: null
+          domain: your-domain
           manifest: null
           org: dof-dss
           package: null
