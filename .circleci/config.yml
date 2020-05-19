@@ -31,6 +31,9 @@ jobs:
       - run:
           name: "Publish Application"
           command: dotnet publish
+      - run:
+          name: "Copy manifest to publish folder"
+          command: ls
 workflows:
   build-and-test:
     jobs:
