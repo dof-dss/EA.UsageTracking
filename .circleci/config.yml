@@ -4,6 +4,18 @@ orbs:
   windows: circleci/windows@2.2.0
   cloudfoundry: circleci/cloudfoundry@0.1.73
 
+commands:
+  install_cmd:
+    steps:
+      - run:
+          command: |
+            curl -v -L -o cf-cli_amd64.deb 'https://cli.run.pivotal.io/stable?release=debian64&source=github'
+            sudo dpkg -i cf-cli_amd64.deb
+            cf -v
+            cf api https://api.london.cloud.service.gov.uk
+            cf auth "$CF_USERNAME" "$CF_PASSWORD"
+            cf target -o "$CF_ORG" -s "$CF_SPACE"
+
 jobs:
   test:
     executor:
@@ -32,43 +44,36 @@ jobs:
       - run:
           name: "Publish Application"
           command: dotnet publish
-      - run:
-          name: "Copy manifest to publish folder"
-          command: cp manifest.yml .\EA.UsageTracking.Application.API\bin\Debug\netcoreapp3.1\publish\
-      - run:
-          name: "Go to Publish folder"
-          command: cd EA.UsageTracking.Application.API\bin\Debug\netcoreapp3.1\publish\
   deploy:
     executor:
       name: windows/default
     steps:
       - run:
-          name: "Deploy"
-          command: echo Deploy
+          name: "Copy manifest to publish folder"
+          command: cp manifest.yml .\EA.UsageTracking.Application.API\bin\Debug\netcoreapp3.1\publish\
+      - run:
+          name: "Go to Publish folder"
+          command: cd .\EA.UsageTracking.Application.API\bin\Debug\netcoreapp3.1\publish\
+      - run:
+          name: "Install Cloud Foundry CLI"
+          command: install_cmd
 workflows:
-  build_deploy:
+  build-and-test-and-deploy:
     jobs:
-      - cloudfoundry/blue_green:
-          appname: ea-usage-tracking
-          build_steps:
+      - test
+      - build:
+          requires:
             - test
-            - build:
-              requires:
-                - test
-            - publish:
-              requires:
-                - test
-                - build
-              filters:
-                branches:
-                  only:
-                    - master
+      - publish:
+          requires:
+            - test
+            - build
+          filters:
+            branches:
+              only:
+                - master
+      - deploy:
+          requires:
+            - publish
           context: govuk-paas-sandbox
-          domain: your-domain
-          manifest: null
-          org: dof-dss
-          space: sandbox
-          validate_steps:
-            - run: echo 'your validation steps'
-            - run: echo 'you can also have more of these'
 
