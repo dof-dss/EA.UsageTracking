@@ -67,7 +67,6 @@ workflows:
           domain: your-domain
           manifest: null
           org: dof-dss
-          package: null
           space: sandbox
           validate_steps:
             - run: echo 'your validation steps'
