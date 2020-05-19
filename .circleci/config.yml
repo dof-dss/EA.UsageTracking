@@ -15,7 +15,6 @@ commands:
             cf api https://api.london.cloud.service.gov.uk
             cf auth "$CF_USERNAME" "$CF_PASSWORD"
             cf target -o "$CF_ORG" -s "$CF_SPACE"
-
 jobs:
   test:
     executor:
@@ -60,8 +59,8 @@ jobs:
           # Must be absolute path or relative path from working_directory
           at: /tmp
       - run: cd tmp
-      - run: 
-          command: install_cmd
+      - run: ls -l
+      - install_cmd
       - run: cf push
 workflows:
   build-and-test-and-deploy:
