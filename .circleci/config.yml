@@ -44,19 +44,24 @@ jobs:
       - run:
           name: "Publish Application"
           command: dotnet publish
+      - persist_to_workspace:
+          # Must be an absolute path, or relative path from working_directory. This is a directory on the container which is 
+          # taken to be the root directory of the workspace.
+          root: workspace
+          # Must be relative path from root
+          paths:
+            - EA.UsageTracking.Application.API\bin\Debug\netcoreapp3.1\publish
+            - .\manifest.yml
   deploy:
     executor:
       name: windows/default
     steps:
-      - run:
-          name: "Copy manifest to publish folder"
-          command: cp manifest.yml .\EA.UsageTracking.Application.API\bin\Debug\netcoreapp3.1\publish\
-      - run:
-          name: "Go to Publish folder"
-          command: cd .\EA.UsageTracking.Application.API\bin\Debug\netcoreapp3.1\publish\
-      - run:
-          name: "Install Cloud Foundry CLI"
-          command: install_cmd
+      - attach_workspace:
+          # Must be absolute path or relative path from working_directory
+          at: /tmp/workspace
+      - run: cd /tmp/workspace
+      - run: install_cmd
+      - run: cf push
 workflows:
   build-and-test-and-deploy:
     jobs:
