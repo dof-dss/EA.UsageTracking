@@ -9,8 +9,8 @@ commands:
     steps:
       - run:
           command: |
-            curl.exe -v -L -o cf-cli_amd64.deb 'https://cli.run.pivotal.io/stable?release=debian64&source=github'
-            sudo dpkg -i cf-cli_amd64.deb
+            Set-ExecutionPolicy Bypass -Scope Process -Force; [System.Net.ServicePointManager]::SecurityProtocol = [System.Net.ServicePointManager]::SecurityProtocol -bor 3072; iex ((New-Object System.Net.WebClient).DownloadString('https://chocolatey.org/install.ps1'))
+            choco install cloudfoundry-cli
             cf -v
             cf api https://api.london.cloud.service.gov.uk
             cf auth "$CF_USERNAME" "$CF_PASSWORD"
