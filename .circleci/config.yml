@@ -2,6 +2,7 @@ version: 2.1
 
 orbs:
   windows: circleci/windows@2.2.0
+  cloudfoundry: circleci/cloudfoundry@0.1.73
 
 jobs:
   test:
@@ -33,19 +34,41 @@ jobs:
           command: dotnet publish
       - run:
           name: "Copy manifest to publish folder"
-          command: ls
+          command: cp manifest.yml .\EA.UsageTracking.Application.API\bin\Debug\netcoreapp3.1\publish\
+      - run:
+          name: "Go to Publish folder"
+          command: cd EA.UsageTracking.Application.API\bin\Debug\netcoreapp3.1\publish\
+  deploy:
+    executor:
+      name: windows/default
+    steps:
+      - run:
+          name: "Deploy"
+          command: echo Deploy
 workflows:
-  build-and-test:
+  build_deploy:
     jobs:
-      - test
-      - build:
-          requires:
+      - cloudfoundry/blue_green:
+          appname: ea-usage-tracking
+          build_steps:
             - test
-      - publish:
-          requires:
-            - test
-            - build
-          filters:
-            branches:
-              only:
-                - master
+            - build:
+              requires:
+                - test
+            - publish:
+              requires:
+                - test
+                - build
+              filters:
+                branches:
+                  only:
+                    - master
+          context: govuk-paas-sandbox
+          manifest: null
+          org: dof-dss
+          package: null
+          space: sandbox
+          validate_steps:
+            - run: echo 'your validation steps'
+            - run: echo 'you can also have more of these'
+
