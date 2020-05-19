@@ -58,9 +58,10 @@ jobs:
     steps:
       - attach_workspace:
           # Must be absolute path or relative path from working_directory
-          at: /tmp/workspace
-      - run: ls
-      - run: install_cmd
+          at: /tmp
+      - run: cd tmp
+      - run: 
+          command: install_cmd
       - run: cf push
 workflows:
   build-and-test-and-deploy:
