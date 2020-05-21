@@ -6,6 +6,13 @@ orbs:
 
 commands:
   install_cmd:
+    parameters:
+      org:
+        type: string
+        default: "DOF-DSS"
+      space:
+        type: string
+        default: "sandbox"
     steps:
       - run:
           command: |
@@ -15,7 +22,8 @@ commands:
             cf api https://api.london.cloud.service.gov.uk
             cf auth "$CF_USERNAME" "$CF_PASSWORD"
             cf target
-            cf target -o DOF-DSS -s sandbox
+            echo "$CF_SPACE" 
+            cf target -o << parameters.org >>  -s << parameters.space >> 
 
 jobs:
   test:
@@ -60,7 +68,9 @@ jobs:
       - attach_workspace:
           # Must be absolute path or relative path from working_directory
           at: /tmp
-      - install_cmd
+      - install_cmd:
+          org: "DOF-DSS"
+          space: "sandbox"
       - run: |
           cd tmp/publish
           cf push
