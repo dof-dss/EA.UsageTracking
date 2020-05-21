@@ -58,7 +58,7 @@ jobs:
           command: dotnet publish
       - run: | 
           cd EA.UsageTracking.Application.API
-          cp << parameters.manifest >> bin\Debug\netcoreapp3.1\publish
+          cp << parameters.manifest >> bin\Debug\netcoreapp3.1\publish\manifest.yml
       - persist_to_workspace:
           root: EA.UsageTracking.Application.API\bin\Debug\netcoreapp3.1
           paths:
