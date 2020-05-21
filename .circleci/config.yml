@@ -46,6 +46,9 @@ jobs:
           name: "Build Application"
           command: dotnet build
   publish:
+    parameters:
+      manifest:
+        type: string
     executor:
       name: windows/default
     steps:
@@ -53,15 +56,17 @@ jobs:
       - run:
           name: "Publish Application"
           command: dotnet publish
-      - run: cp manifest.yml EA.UsageTracking.Application.API\bin\Debug\netcoreapp3.1\publish
+      - run: | 
+          cd EA.UsageTracking.Application.API
+          cp << parameters.manifest >> EA.UsageTracking.Application.API\bin\Debug\netcoreapp3.1\publish
       - persist_to_workspace:
-          # Must be an absolute path, or relative path from working_directory. This is a directory on the container which is 
-          # taken to be the root directory of the workspace.
           root: EA.UsageTracking.Application.API\bin\Debug\netcoreapp3.1
-          # Must be relative path from root
           paths:
             - publish
   deploy:
+    parameters:
+      space:
+        type: string
     executor:
       name: windows/default
     steps:
@@ -70,18 +75,19 @@ jobs:
           at: /tmp
       - install_cmd:
           org: "DOF-DSS"
-          space: "sandbox"
+          space: << parameters.space >>
       - run: |
           cd tmp/publish
           cf push
 workflows:
-  build-and-test-and-deploy:
+  build-and-test-and-deploy-sandbox:
     jobs:
       - test
       - build:
           requires:
             - test
       - publish:
+          manifest: "manifest.sandbox.yml"
           requires:
             - test
             - build
@@ -90,7 +96,29 @@ workflows:
               only:
                 - master
       - deploy:
+          space: "sandbox"
           requires:
             - publish
           context: govuk-paas-sandbox
+  build-and-test-and-deploy-staging:
+    jobs:
+      - test
+      - build:
+          requires:
+            - test
+      - publish:
+          manifest: "manifest.staging.yml"
+          requires:
+            - test
+            - build
+          filters:    # selected tags and no branches
+            tags:
+              only: /^v(0|[0-9]\d*)\.(0|[0-9]\d*)\.(0|[0-9]\d*)(?:-(alpha|beta))?$/
+            branches:
+              ignore: /.*/
+      - deploy:
+          space: "staging"
+          requires:
+            - publish
+          context: govuk-paas-staging
 
