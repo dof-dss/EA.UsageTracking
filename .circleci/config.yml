@@ -58,7 +58,7 @@ jobs:
           command: dotnet publish
       - run: | 
           cd EA.UsageTracking.Application.API
-          cp << parameters.manifest >> EA.UsageTracking.Application.API\bin\Debug\netcoreapp3.1\publish
+          cp << parameters.manifest >> bin\Debug\netcoreapp3.1\publish
       - persist_to_workspace:
           root: EA.UsageTracking.Application.API\bin\Debug\netcoreapp3.1
           paths:
@@ -102,10 +102,20 @@ workflows:
           context: govuk-paas-sandbox
   build-and-test-and-deploy-staging:
     jobs:
-      - test
+      - test:
+          filters:    # selected tags and no branches
+            tags:
+              only: /^v(0|[0-9]\d*)\.(0|[0-9]\d*)\.(0|[0-9]\d*)(?:-(alpha|beta))?$/
+            branches:
+              ignore: /.*/
       - build:
           requires:
             - test
+          filters:    # selected tags and no branches
+            tags:
+              only: /^v(0|[0-9]\d*)\.(0|[0-9]\d*)\.(0|[0-9]\d*)(?:-(alpha|beta))?$/
+            branches:
+              ignore: /.*/
       - publish:
           manifest: "manifest.staging.yml"
           requires:
