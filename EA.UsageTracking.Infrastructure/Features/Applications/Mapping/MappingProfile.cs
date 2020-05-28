@@ -15,7 +15,9 @@ namespace EA.UsageTracking.Infrastructure.Features.Applications.Mapping
             CreateMap<Application, ApplicationDTO>()
                 .ForMember(d => d.ApplicationId, o => o.MapFrom(s => s.Id))
                 .ForMember(d => d.ClientId, o => o.MapFrom(s => s.TenantId));
-            CreateMap<ApplicationDTO, Application>();
+            CreateMap<ApplicationDTO, Application>()
+                .ForMember(d => d.Id, o => o.MapFrom(s => s.ApplicationId))
+                .ForMember(d => d.TenantId, o => o.MapFrom(s => s.ClientId));
             CreateMap<GetAllApplicationsQuery, Pagination.PaginationDetails>();
         }
     }
