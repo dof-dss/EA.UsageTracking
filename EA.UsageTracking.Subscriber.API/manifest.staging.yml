@@ -1,6 +1,6 @@
 ---
 applications:
-- name: ea-usage-tracking-sandbox
+- name: ea-usage-tracking-subscriber-staging
   buildpacks:
   - dotnet_core_buildpack
   memory: 256M

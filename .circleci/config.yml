@@ -59,10 +59,16 @@ jobs:
       - run: | 
           cd EA.UsageTracking.Application.API
           cp << parameters.manifest >> bin\Debug\netcoreapp3.1\publish\manifest.yml
+          cd ..\EA.UsageTracking.Subscriber.API
+          cp << parameters.manifest >> bin\Debug\netcoreapp3.1\publish\manifest.yml
       - persist_to_workspace:
           root: EA.UsageTracking.Application.API\bin\Debug\netcoreapp3.1
           paths:
             - publish
+      - persist_to_workspace:
+          root: EA.UsageTracking.Subscriber.API\bin\Debug\netcoreapp3.1
+          paths:
+            - publish-sub
   deploy:
     parameters:
       space:
@@ -78,6 +84,8 @@ jobs:
           space: << parameters.space >>
       - run: |
           cd tmp/publish
+          cf push
+          cd ..\publish-sub
           cf push
 workflows:
   build-and-test-and-deploy-sandbox:
