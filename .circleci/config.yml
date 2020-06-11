@@ -62,13 +62,13 @@ jobs:
           cd ..\EA.UsageTracking.Subscriber.API
           cp << parameters.manifest >> bin\Debug\netcoreapp3.1\publish\manifest.yml
       - persist_to_workspace:
-          root: EA.UsageTracking.Application.API\bin\Debug\netcoreapp3.1
+          root: .\
           paths:
-            - publish
+            - EA.UsageTracking.Application.API\bin\Debug\netcoreapp3.1\publish
       - persist_to_workspace:
-          root: EA.UsageTracking.Subscriber.API\bin\Debug\netcoreapp3.1
+          root: .\
           paths:
-            - publish-sub
+            - EA.UsageTracking.Subscriber.API\bin\Debug\netcoreapp3.1\publish
   deploy:
     parameters:
       space:
@@ -83,9 +83,9 @@ jobs:
           org: "DOF-DSS"
           space: << parameters.space >>
       - run: |
-          cd tmp/publish
+          cd tmp/EA.UsageTracking.Application.API/bin/Debug/netcoreapp3.1/publish
           cf push
-          cd ..\publish-sub
+          cd tmp/EA.UsageTracking.Subscriber.API/bin/Debug/netcoreapp3.1/publish
           cf push
 workflows:
   build-and-test-and-deploy-sandbox:
