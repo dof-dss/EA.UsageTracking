@@ -85,7 +85,7 @@ jobs:
       - run: |
           cd tmp/EA.UsageTracking.Application.API/bin/Debug/netcoreapp3.1/publish
           cf push
-          cd tmp/EA.UsageTracking.Subscriber.API/bin/Debug/netcoreapp3.1/publish
+          cd ../../../../../EA.UsageTracking.Subscriber.API/bin/Debug/netcoreapp3.1/publish
           cf push
 workflows:
   build-and-test-and-deploy-sandbox:
