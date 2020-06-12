@@ -158,6 +158,7 @@ workflows:
   build-and-test-and-deploy-production:
     jobs:
       - test:
+          type: approval
           filters:    # selected tags and no branches
             tags:
               only: /^v(0|[0-9]\d*)\.(0|[0-9]\d*)\.(0|[0-9]\d*)(?:-(alpha|beta))?$/
@@ -181,14 +182,10 @@ workflows:
               only: /^v(0|[0-9]\d*)\.(0|[0-9]\d*)\.(0|[0-9]\d*)(?:-(alpha|beta))?$/
             branches:
               ignore: /.*/
-      - hold:
-          type: approval 
-          requires: 
-           - publish
       - deploy:
           space: "production"
           requires:
-            - hold
+            - publish
           filters:    # selected tags and no branches
             tags:
               only: /^v(0|[0-9]\d*)\.(0|[0-9]\d*)\.(0|[0-9]\d*)(?:-(alpha|beta))?$/
