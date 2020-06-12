@@ -65,7 +65,7 @@ jobs:
       - run: 
           name: "Copy Manifest files to Subscriber publish directory"
           command: |
-            cd ..\EA.UsageTracking.Subscriber.API
+            cd EA.UsageTracking.Subscriber.API
             cp << parameters.manifest >> bin\Debug\netcoreapp3.1\publish\manifest.yml
       - persist_to_workspace:
           root: .\
@@ -89,11 +89,14 @@ jobs:
           org: "DOF-DSS"
           space: << parameters.space >>
       - run: 
-          name: "Deploy to GOV UK PaaS"
+          name: "Deploy API to GOV UK PaaS"
           command: |
             cd tmp/EA.UsageTracking.Application.API/bin/Debug/netcoreapp3.1/publish
             cf push
-            cd ../../../../../EA.UsageTracking.Subscriber.API/bin/Debug/netcoreapp3.1/publish
+      - run: 
+          name: "Deploy Subscriber to GOV UK PaaS"
+          command: |
+            cd tmp/EA.UsageTracking.Subscriber.API/bin/Debug/netcoreapp3.1/publish
             cf push
 workflows:
   build-and-test-and-deploy-sandbox:
