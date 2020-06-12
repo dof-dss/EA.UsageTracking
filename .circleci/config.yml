@@ -58,12 +58,15 @@ jobs:
           name: "Publish Application"
           command: dotnet publish
       - run: 
-          name: "Copy Manifest files to publish dorectory"
-          command: | 
-          cd EA.UsageTracking.Application.API
-          cp << parameters.manifest >> bin\Debug\netcoreapp3.1\publish\manifest.yml
-          cd ..\EA.UsageTracking.Subscriber.API
-          cp << parameters.manifest >> bin\Debug\netcoreapp3.1\publish\manifest.yml
+          name: "Copy Manifest files to API publish directory"
+          command: |
+            cd EA.UsageTracking.Application.API
+            cp << parameters.manifest >> bin\Debug\netcoreapp3.1\publish\manifest.yml
+      - run: 
+          name: "Copy Manifest files to Subscriber publish directory"
+          command: |
+            cd ..\EA.UsageTracking.Subscriber.API
+            cp << parameters.manifest >> bin\Debug\netcoreapp3.1\publish\manifest.yml
       - persist_to_workspace:
           root: .\
           paths:
@@ -88,10 +91,10 @@ jobs:
       - run: 
           name: "Deploy to GOV UK PaaS"
           command: |
-          cd tmp/EA.UsageTracking.Application.API/bin/Debug/netcoreapp3.1/publish
-          cf push
-          cd ../../../../../EA.UsageTracking.Subscriber.API/bin/Debug/netcoreapp3.1/publish
-          cf push
+            cd tmp/EA.UsageTracking.Application.API/bin/Debug/netcoreapp3.1/publish
+            cf push
+            cd ../../../../../EA.UsageTracking.Subscriber.API/bin/Debug/netcoreapp3.1/publish
+            cf push
 workflows:
   build-and-test-and-deploy-sandbox:
     jobs:
