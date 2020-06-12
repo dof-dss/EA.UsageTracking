@@ -15,6 +15,7 @@ commands:
         default: "sandbox"
     steps:
       - run:
+          name: "Install and configure Cloud Foundry CLI"
           command: |
             Set-ExecutionPolicy Bypass -Scope Process -Force; [System.Net.ServicePointManager]::SecurityProtocol = [System.Net.ServicePointManager]::SecurityProtocol -bor 3072; iex ((New-Object System.Net.WebClient).DownloadString('https://chocolatey.org/install.ps1'))
             choco install cloudfoundry-cli
@@ -56,7 +57,9 @@ jobs:
       - run:
           name: "Publish Application"
           command: dotnet publish
-      - run: | 
+      - run: 
+          name: "Copy Manifest files to publish dorectory"
+          command: | 
           cd EA.UsageTracking.Application.API
           cp << parameters.manifest >> bin\Debug\netcoreapp3.1\publish\manifest.yml
           cd ..\EA.UsageTracking.Subscriber.API
@@ -82,7 +85,9 @@ jobs:
       - install_cmd:
           org: "DOF-DSS"
           space: << parameters.space >>
-      - run: |
+      - run: 
+          name: "Deploy to GOV UK PaaS"
+          command: |
           cd tmp/EA.UsageTracking.Application.API/bin/Debug/netcoreapp3.1/publish
           cf push
           cd ../../../../../EA.UsageTracking.Subscriber.API/bin/Debug/netcoreapp3.1/publish
