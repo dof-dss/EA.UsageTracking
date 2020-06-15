@@ -50,6 +50,8 @@ jobs:
     parameters:
       manifest:
         type: string
+      appsettings:
+        type: string
     executor:
       name: windows/default
     steps:
@@ -62,6 +64,8 @@ jobs:
           command: |
             cd EA.UsageTracking.Application.API
             cp << parameters.manifest >> bin\Debug\netcoreapp3.1\publish\manifest.yml
+            cd bin\Debug\netcoreapp3.1\publish
+            cp << parameters.appsettings >> appsettings.json
       - run: 
           name: "Copy Manifest files to Subscriber publish directory"
           command: |
@@ -114,6 +118,7 @@ workflows:
             - test
       - publish:
           manifest: "manifest.sandbox.yml"
+          appsettings: "appsettings.json"
           requires:
             - test
             - build
@@ -144,6 +149,7 @@ workflows:
               ignore: /.*/
       - publish:
           manifest: "manifest.staging.yml"
+          appsettings: "appsettings.Staging.json"
           requires:
             - test
             - build
@@ -180,6 +186,7 @@ workflows:
               ignore: /.*/
       - publish:
           manifest: "manifest.production.yml"
+          appsettings: "appsettings.Production.json"
           requires:
             - test
             - build
