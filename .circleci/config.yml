@@ -66,6 +66,7 @@ jobs:
             cp << parameters.manifest >> bin\Debug\netcoreapp3.1\publish\manifest.yml
             cd bin\Debug\netcoreapp3.1\publish
             cp << parameters.appsettings >> appsettings.json
+            gc appsettings.json
       - run: 
           name: "Copy Manifest files to Subscriber publish directory"
           command: |
