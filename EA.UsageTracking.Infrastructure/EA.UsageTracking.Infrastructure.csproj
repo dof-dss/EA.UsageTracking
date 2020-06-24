@@ -3,7 +3,7 @@
   
   <PropertyGroup>
     <TargetFramework>netcoreapp3.1</TargetFramework>
-    <Configurations>Debug;Release;Staging</Configurations>
+    <Configurations>Debug;Release;Staging;Production</Configurations>
     <LangVersion>8</LangVersion>
   </PropertyGroup>
   

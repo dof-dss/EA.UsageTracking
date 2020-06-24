@@ -2,7 +2,7 @@
 
   <PropertyGroup>
     <TargetFramework>netcoreapp3.1</TargetFramework>
-    <Configurations>Debug;Release;Staging</Configurations>
+    <Configurations>Debug;Release;Staging;Production</Configurations>
   </PropertyGroup>
 
   <ItemGroup>
@@ -32,5 +32,9 @@
     <ProjectReference Include="..\EA.UsageTracking.Infrastructure\EA.UsageTracking.Infrastructure.csproj" />
     <ProjectReference Include="..\EA.UsageTracking.SharedKernel\EA.UsageTracking.SharedKernel.csproj" />
   </ItemGroup>
+
+  <Target Name="PostBuild" AfterTargets="PostBuildEvent">
+    <Exec Command="dotnet publish --no-build -c $(ConfigurationName)&#xD;&#xA;COPY manifest.$(ConfigurationName).yml bin\$(ConfigurationName)\netcoreapp3.1\publish\manifest.yml&#xD;&#xA;cd bin\$(ConfigurationName)\netcoreapp3.1\publish&#xD;&#xA;COPY appsettings.$(ConfigurationName).json appsettings.json&#xD;&#xA;DEL appsettings.*.json &#xD;&#xA;" />
+  </Target>
 
 </Project>
