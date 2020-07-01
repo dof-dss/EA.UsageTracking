@@ -41,7 +41,7 @@ namespace EA.UsageTracking.Tests.Functional
         public async Task GetAllUsersForApplication()
         {
             //Act
-            var response = await _client.GetAsync("/api/applicationUser?PageNumber=1&PageSize=100");
+            var response = await _client.GetAsync("/api/v1/applicationUser?PageNumber=1&PageSize=100");
             response.EnsureSuccessStatusCode();
             var stringResponse = await response.Content.ReadAsStringAsync();
             var result = JsonConvert.DeserializeObject<PagedResponse< ApplicationUserDTO>>(stringResponse);
@@ -54,7 +54,7 @@ namespace EA.UsageTracking.Tests.Functional
         public async Task GetById()
         {
             //Act
-            var response = await _client.GetAsync("/api/applicationUser/details?id=b0ed668d-7ef2-4a23-a333-94ad278f4111");
+            var response = await _client.GetAsync("/api/v1/applicationUser/details?id=b0ed668d-7ef2-4a23-a333-94ad278f4111");
             response.EnsureSuccessStatusCode();
             var stringResponse = await response.Content.ReadAsStringAsync();
             var result = JsonConvert.DeserializeObject<ApplicationUserDTO>(stringResponse);
@@ -71,7 +71,7 @@ namespace EA.UsageTracking.Tests.Functional
             var applicationUserDto = new ApplicationUserDTO() {Id = id ,Name = "Test User"};
 
             //Act
-            var response = await _client.PostAsJsonAsync("/api/applicationUser", applicationUserDto );
+            var response = await _client.PostAsJsonAsync("/api/v1/applicationUser", applicationUserDto );
             response.EnsureSuccessStatusCode();
             var stringResponse = await response.Content.ReadAsStringAsync();
             var result = JsonConvert.DeserializeObject<ApplicationUserDTO>(stringResponse);
@@ -93,12 +93,12 @@ namespace EA.UsageTracking.Tests.Functional
             //Arrange
             var id = Guid.NewGuid();
             var applicationUserDto = new ApplicationUserDTO() {Id = id, Name = "User 1" };
-            var postResponse = await _client.PostAsJsonAsync("/api/applicationUser", applicationUserDto);
+            var postResponse = await _client.PostAsJsonAsync("/api/v1/applicationUser", applicationUserDto);
             var postStringResponse = await postResponse.Content.ReadAsStringAsync();
             var postResult = JsonConvert.DeserializeObject<ApplicationUserDTO>(postStringResponse);
 
             //Act
-            var response = await _client.PutAsJsonAsync("/api/applicationUser", 
+            var response = await _client.PutAsJsonAsync("/api/v1/applicationUser", 
                 new ApplicationUserDTO(){Id = postResult.Id, Name = "Updated User"});
             response.EnsureSuccessStatusCode();
             var putStringResponse = await response.Content.ReadAsStringAsync();
@@ -119,7 +119,7 @@ namespace EA.UsageTracking.Tests.Functional
             //Arrange
             var id = Guid.NewGuid();
             var applicationUserDto = new ApplicationUserDTO() { Id = id, Name = "User 1" };
-            var postResponse = await _client.PostAsJsonAsync("/api/applicationUser", applicationUserDto);
+            var postResponse = await _client.PostAsJsonAsync("/api/v1/applicationUser", applicationUserDto);
             var postStringResponse = await postResponse.Content.ReadAsStringAsync();
             var postResult = JsonConvert.DeserializeObject<ApplicationUserDTO>(postStringResponse);
 

@@ -41,7 +41,7 @@ namespace EA.UsageTracking.Tests.Functional
         public async Task GetAllEventsForApplication()
         {
             //Act
-            var response = await _client.GetAsync("/api/applicationEvent?PageNumber=1&PageSize=100");
+            var response = await _client.GetAsync("/api/v1/applicationEvent?PageNumber=1&PageSize=100");
             response.EnsureSuccessStatusCode();
             var stringResponse = await response.Content.ReadAsStringAsync();
             var result = JsonConvert.DeserializeObject<PagedResponse< ApplicationEventDTO>>(stringResponse);
@@ -54,7 +54,7 @@ namespace EA.UsageTracking.Tests.Functional
         public async Task GetById()
         {
             //Act
-            var response = await _client.GetAsync("/api/applicationEvent/details?id=1");
+            var response = await _client.GetAsync("/api/v1/applicationEvent/details?id=1");
             response.EnsureSuccessStatusCode();
             var stringResponse = await response.Content.ReadAsStringAsync();
             var result = JsonConvert.DeserializeObject<ApplicationEventDTO>(stringResponse);
@@ -70,7 +70,7 @@ namespace EA.UsageTracking.Tests.Functional
             var applicationEventDTO = new ApplicationEventDTO() {Name = "Event 1"};
 
             //Act
-            var response = await _client.PostAsJsonAsync("/api/applicationEvent", applicationEventDTO );
+            var response = await _client.PostAsJsonAsync("/api/v1/applicationEvent", applicationEventDTO );
             response.EnsureSuccessStatusCode();
             var stringResponse = await response.Content.ReadAsStringAsync();
             var result = JsonConvert.DeserializeObject<ApplicationEventDTO>(stringResponse);
@@ -90,12 +90,12 @@ namespace EA.UsageTracking.Tests.Functional
         {
             //Arrange
             var applicationEventDTO = new ApplicationEventDTO() { Name = "Event 1" };
-            var postResponse = await _client.PostAsJsonAsync("/api/applicationEvent", applicationEventDTO);
+            var postResponse = await _client.PostAsJsonAsync("/api/v1/applicationEvent", applicationEventDTO);
             var postStringResponse = await postResponse.Content.ReadAsStringAsync();
             var postResult = JsonConvert.DeserializeObject<ApplicationEventDTO>(postStringResponse);
 
             //Act
-            var response = await _client.PutAsJsonAsync("/api/applicationEvent", 
+            var response = await _client.PutAsJsonAsync("/api/v1/applicationEvent", 
                 new ApplicationEventDTO(){Id = postResult.Id, Name = "Updated Event"});
             response.EnsureSuccessStatusCode();
             var putStringResponse = await response.Content.ReadAsStringAsync();
@@ -114,7 +114,7 @@ namespace EA.UsageTracking.Tests.Functional
         {
             //Arrange
             var applicationEventDTO = new ApplicationEventDTO() { Name = "Event 1" };
-            var postResponse = await _client.PostAsJsonAsync("/api/applicationEvent", applicationEventDTO);
+            var postResponse = await _client.PostAsJsonAsync("/api/v1/applicationEvent", applicationEventDTO);
             var postStringResponse = await postResponse.Content.ReadAsStringAsync();
             var postResult = JsonConvert.DeserializeObject<ApplicationEventDTO>(postStringResponse);
 

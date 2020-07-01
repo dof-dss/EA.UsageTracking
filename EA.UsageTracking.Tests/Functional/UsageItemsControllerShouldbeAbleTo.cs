@@ -53,7 +53,7 @@ namespace EA.UsageTracking.Tests.Functional
         public async Task GetAllForApplication()
         {
             //Act
-            var response = await _client.GetAsync("/api/applicationUsage?PageNumber=1&PageSize=2");
+            var response = await _client.GetAsync("/api/v1/applicationUsage?PageNumber=1&PageSize=2");
             response.EnsureSuccessStatusCode();
             var stringResponse = await response.Content.ReadAsStringAsync();
             var result = JsonConvert.DeserializeObject<PagedResponse<UsageItemDTO>>(stringResponse);
@@ -66,7 +66,7 @@ namespace EA.UsageTracking.Tests.Functional
         public async Task GetById()
         {
             //Act
-            var response = await _client.GetAsync("/api/applicationUsage/details?id=1");
+            var response = await _client.GetAsync("/api/v1/applicationUsage/details?id=1");
             response.EnsureSuccessStatusCode();
             var stringResponse = await response.Content.ReadAsStringAsync();
             var result = JsonConvert.DeserializeObject<UsageItemDTO>(stringResponse);
@@ -81,7 +81,7 @@ namespace EA.UsageTracking.Tests.Functional
         public async Task GetByUser()
         {
             //Act
-            var response = await _client.GetAsync("/api/applicationUsage/user?id=b0ed668d-7ef2-4a23-a333-94ad278f4111");
+            var response = await _client.GetAsync("/api/v1/applicationUsage/user?id=b0ed668d-7ef2-4a23-a333-94ad278f4111");
             response.EnsureSuccessStatusCode();
             var stringResponse = await response.Content.ReadAsStringAsync();
             var result = JsonConvert.DeserializeObject<PagedResponse<UsageItemDTO>>(stringResponse);
@@ -101,7 +101,7 @@ namespace EA.UsageTracking.Tests.Functional
             };
 
             //Act
-            var response = await _client.PostAsJsonAsync("/api/applicationUsage", addUsageItemPublisherCommand);
+            var response = await _client.PostAsJsonAsync("/api/v1/applicationUsage", addUsageItemPublisherCommand);
             response.EnsureSuccessStatusCode();
 
             //Assert
