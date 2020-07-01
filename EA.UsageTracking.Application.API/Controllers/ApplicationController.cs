@@ -17,8 +17,9 @@ using Microsoft.Extensions.Caching.Distributed;
 
 namespace EA.UsageTracking.Application.API.Controllers
 {
-    [Route("api/[controller]")]
+    [ApiVersion("1.0")]
     [ApiController]
+    [Route("api/v{version:apiVersion}/[controller]")]
     public class ApplicationController : ControllerBase
     {
         private readonly IMediator _mediator;

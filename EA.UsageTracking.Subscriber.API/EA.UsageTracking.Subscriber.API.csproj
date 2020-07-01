@@ -16,9 +16,5 @@
     <ProjectReference Include="..\EA.UsageTracking.Subscriber\EA.UsageTracking.Subscriber.csproj" />
   </ItemGroup>
 
-  <Target Name="PostBuild" AfterTargets="PostBuildEvent">
-    <Exec Command="dotnet publish --no-build -c $(ConfigurationName)&#xD;&#xA;COPY manifest.$(ConfigurationName).yml bin\$(ConfigurationName)\netcoreapp3.1\publish\manifest.yml&#xD;&#xA;" />
-  </Target>
-
 
 </Project>

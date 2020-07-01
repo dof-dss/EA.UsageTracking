@@ -51,6 +51,24 @@ namespace EA.UsageTracking.Application.API
                     options.Conventions.AddPageRoute("/robotstxt", "/Robots.Txt");
                 });
 
+            services.AddApiVersioning(
+                options =>
+                {
+                    options.ReportApiVersions = true;
+                });
+
+            services.AddVersionedApiExplorer(
+                options =>
+                {
+                    // add the versioned api explorer, which also adds IApiVersionDescriptionProvider service
+                    // note: the specified format code will format the version as "'v'major[.minor][-status]"
+                    options.GroupNameFormat = "'v'VVV";
+
+                    // note: this option is only necessary when versioning by url segment. the SubstitutionFormat
+                    // can also be used to control the format of the API version in route templates
+                    options.SubstituteApiVersionInUrl = true;
+                });
+
             services.AddAutoMapper(typeof(UsageTrackingContext).GetTypeInfo().Assembly);
             services.AddMediatR(typeof(Startup).GetTypeInfo().Assembly, 
                 typeof(UsageTrackingContext).GetTypeInfo().Assembly,

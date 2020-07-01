@@ -50,8 +50,6 @@ jobs:
     parameters:
       manifest:
         type: string
-      appsettings:
-        type: string
     executor:
       name: windows/default
     steps:
@@ -64,9 +62,6 @@ jobs:
           command: |
             cd EA.UsageTracking.Application.API
             cp << parameters.manifest >> bin\Debug\netcoreapp3.1\publish\manifest.yml
-            cd bin\Debug\netcoreapp3.1\publish
-            cp << parameters.appsettings >> appsettings.json
-            gc appsettings.json
       - run: 
           name: "Copy Manifest files to Subscriber publish directory"
           command: |
@@ -105,11 +100,15 @@ jobs:
           command: |
             cd tmp/EA.UsageTracking.Application.API/bin/Debug/netcoreapp3.1/publish
             cf push
+            cf set-env ea-usage-tracking-<< parameters.space >> ASPNETCORE_ENVIRONMENT << parameters.space >>
+            cf restage ea-usage-tracking-<< parameters.space >>
       - run: 
           name: "Deploy Subscriber to GOV UK PaaS"
           command: |
             cd tmp/EA.UsageTracking.Subscriber.API/bin/Debug/netcoreapp3.1/publish
             cf push
+            cf set-env ea-usage-tracking-subscriber-<< parameters.space >> ASPNETCORE_ENVIRONMENT << parameters.space >>
+            cf restage ea-usage-tracking-subscriber-<< parameters.space >>
 workflows:
   build-and-test-and-deploy-sandbox:
     jobs:
@@ -119,7 +118,6 @@ workflows:
             - test
       - publish:
           manifest: "manifest.sandbox.yml"
-          appsettings: "appsettings.json"
           requires:
             - test
             - build
@@ -150,7 +148,6 @@ workflows:
               ignore: /.*/
       - publish:
           manifest: "manifest.staging.yml"
-          appsettings: "appsettings.Staging.json"
           requires:
             - test
             - build
@@ -187,7 +184,6 @@ workflows:
               ignore: /.*/
       - publish:
           manifest: "manifest.production.yml"
-          appsettings: "appsettings.Production.json"
           requires:
             - test
             - build
