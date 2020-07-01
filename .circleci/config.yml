@@ -64,20 +64,20 @@ jobs:
           name: "Copy Manifest files to API publish directory"
           command: |
             cd EA.UsageTracking.Application.API
-            cp << parameters.manifest >> bin\<< parameters.configuration >>netcoreapp3.1\publish\manifest.yml
+            cp << parameters.manifest >> bin/<< parameters.configuration >>/netcoreapp3.1/publish/manifest.yml
       - run: 
           name: "Copy Manifest files to Subscriber publish directory"
           command: |
             cd EA.UsageTracking.Subscriber.API
-            cp << parameters.manifest >> bin\<< parameters.configuration >>\netcoreapp3.1\publish\manifest.yml
+            cp << parameters.manifest >> bin/<< parameters.configuration >>/netcoreapp3.1/publish/manifest.yml
       - persist_to_workspace:
           root: .\
           paths:
-            - EA.UsageTracking.Application.API\bin\<< parameters.configuration >>\netcoreapp3.1\publish
+            - EA.UsageTracking.Application.API/bin/<< parameters.configuration >>/netcoreapp3.1\publish
       - persist_to_workspace:
           root: .\
           paths:
-            - EA.UsageTracking.Subscriber.API\bin\<< parameters.configuration >>\netcoreapp3.1\publish
+            - EA.UsageTracking.Subscriber.API/bin/<< parameters.configuration >>/netcoreapp3.1\publish
   hold:
     executor:
       name: windows/default
