@@ -3,7 +3,7 @@
   <PropertyGroup>
     <TargetFramework>netcoreapp3.1</TargetFramework>
     <UserSecretsId>dotnet-EA.UsageTracking.Subscriber-A43C9885-D711-40DB-AA25-0E36440D4A55</UserSecretsId>
-    <Configurations>Debug;Release;Staging;Production</Configurations>
+    <Configurations>Debug;Release;Staging;Production;Sandbox</Configurations>
   </PropertyGroup>
 
   <ItemGroup>
