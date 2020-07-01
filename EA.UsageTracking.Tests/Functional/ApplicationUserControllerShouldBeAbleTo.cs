@@ -124,10 +124,10 @@ namespace EA.UsageTracking.Tests.Functional
             var postResult = JsonConvert.DeserializeObject<ApplicationUserDTO>(postStringResponse);
 
             //Act
-            var response = await _client.DeleteAsync($"/api/applicationUser/{postResult.Id}");
+            var response = await _client.DeleteAsync($"/api/v1/applicationUser/{postResult.Id}");
             response.EnsureSuccessStatusCode();
 
-            var getResponse = await _client.GetAsync($"/api/applicationUser/details?id={postResult.Id}");
+            var getResponse = await _client.GetAsync($"/api/v1/applicationUser/details?id={postResult.Id}");
 
             //Assert
             Assert.AreEqual(HttpStatusCode.NotFound, getResponse.StatusCode);

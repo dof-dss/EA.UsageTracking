@@ -101,7 +101,7 @@ namespace EA.UsageTracking.Tests.Functional
             var putStringResponse = await response.Content.ReadAsStringAsync();
             var result = JsonConvert.DeserializeObject<ApplicationEventDTO>(putStringResponse);
 
-            var getResponse = await _client.GetAsync($"/api/applicationEvent/details?id={result.Id}");
+            var getResponse = await _client.GetAsync($"/api/v1/applicationEvent/details?id={result.Id}");
             response.EnsureSuccessStatusCode();
             var getStringResponse = await response.Content.ReadAsStringAsync();
             var getResult = JsonConvert.DeserializeObject<ApplicationEventDTO>(getStringResponse);
@@ -119,10 +119,10 @@ namespace EA.UsageTracking.Tests.Functional
             var postResult = JsonConvert.DeserializeObject<ApplicationEventDTO>(postStringResponse);
 
             //Act
-            var response = await _client.DeleteAsync($"/api/applicationEvent/{postResult.Id}");
+            var response = await _client.DeleteAsync($"/api/v1/applicationEvent/{postResult.Id}");
             response.EnsureSuccessStatusCode();
 
-            var getResponse = await _client.GetAsync($"/api/applicationEvent/details?id={postResult.Id}");
+            var getResponse = await _client.GetAsync($"/api/v1/applicationEvent/details?id={postResult.Id}");
 
             //Assert
             Assert.AreEqual(HttpStatusCode.NotFound, getResponse.StatusCode);
