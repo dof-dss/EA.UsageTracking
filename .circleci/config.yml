@@ -50,31 +50,34 @@ jobs:
     parameters:
       manifest:
         type: string
+      configuration:
+        type: string
+        default: "Sandbox"
     executor:
       name: windows/default
     steps:
       - checkout
       - run:
           name: "Publish Application"
-          command: dotnet publish
+          command: dotnet publish -c << parameters.configuration >>
       - run: 
           name: "Copy Manifest files to API publish directory"
           command: |
             cd EA.UsageTracking.Application.API
-            cp << parameters.manifest >> bin\Debug\netcoreapp3.1\publish\manifest.yml
+            cp << parameters.manifest >> bin\<< parameters.configuration >>netcoreapp3.1\publish\manifest.yml
       - run: 
           name: "Copy Manifest files to Subscriber publish directory"
           command: |
             cd EA.UsageTracking.Subscriber.API
-            cp << parameters.manifest >> bin\Debug\netcoreapp3.1\publish\manifest.yml
+            cp << parameters.manifest >> bin\<< parameters.configuration >>\netcoreapp3.1\publish\manifest.yml
       - persist_to_workspace:
           root: .\
           paths:
-            - EA.UsageTracking.Application.API\bin\Debug\netcoreapp3.1\publish
+            - EA.UsageTracking.Application.API\bin\<< parameters.configuration >>\netcoreapp3.1\publish
       - persist_to_workspace:
           root: .\
           paths:
-            - EA.UsageTracking.Subscriber.API\bin\Debug\netcoreapp3.1\publish
+            - EA.UsageTracking.Subscriber.API\bin\<< parameters.configuration >>\netcoreapp3.1\publish
   hold:
     executor:
       name: windows/default
@@ -86,6 +89,9 @@ jobs:
     parameters:
       space:
         type: string
+      configuration:
+        type: string
+        default: "Sandbox"
     executor:
       name: windows/default
     steps:
@@ -98,14 +104,14 @@ jobs:
       - run: 
           name: "Deploy API to GOV UK PaaS"
           command: |
-            cd tmp/EA.UsageTracking.Application.API/bin/Debug/netcoreapp3.1/publish
+            cd tmp/EA.UsageTracking.Application.API/bin/<< parameters.configuration >>/netcoreapp3.1/publish
             cf push
             cf set-env ea-usage-tracking-<< parameters.space >> ASPNETCORE_ENVIRONMENT << parameters.space >>
             cf restage ea-usage-tracking-<< parameters.space >>
       - run: 
           name: "Deploy Subscriber to GOV UK PaaS"
           command: |
-            cd tmp/EA.UsageTracking.Subscriber.API/bin/Debug/netcoreapp3.1/publish
+            cd tmp/EA.UsageTracking.Subscriber.API/bin/<< parameters.configuration >>/netcoreapp3.1/publish
             cf push
             cf set-env ea-usage-tracking-subscriber-<< parameters.space >> ASPNETCORE_ENVIRONMENT << parameters.space >>
             cf restage ea-usage-tracking-subscriber-<< parameters.space >>
@@ -148,6 +154,7 @@ workflows:
               ignore: /.*/
       - publish:
           manifest: "manifest.staging.yml"
+          configuration: "Staging"
           requires:
             - test
             - build
@@ -158,6 +165,7 @@ workflows:
               ignore: /.*/
       - deploy:
           space: "staging"
+          configuration: "Staging"
           requires:
             - publish
           filters:    # selected tags and no branches
@@ -184,6 +192,7 @@ workflows:
               ignore: /.*/
       - publish:
           manifest: "manifest.production.yml"
+          configuration: "Production"
           requires:
             - test
             - build
@@ -203,6 +212,7 @@ workflows:
               ignore: /.*/
       - deploy:
           space: "production"
+          configuration: "Production"
           requires:
             - hold
           filters:    # selected tags and no branches
