@@ -113,8 +113,6 @@ jobs:
           command: |
             cd tmp/EA.UsageTracking.Subscriber.API/bin/<< parameters.configuration >>/netcoreapp3.1/publish
             cf push
-            cf set-env ea-usage-tracking-subscriber-<< parameters.space >> ASPNETCORE_ENVIRONMENT << parameters.configuration >>
-            cf restage ea-usage-tracking-subscriber-<< parameters.space >>
 workflows:
   build-and-test-and-deploy-sandbox:
     jobs:
