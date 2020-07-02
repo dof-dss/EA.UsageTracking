@@ -113,6 +113,28 @@ jobs:
           command: |
             cd tmp/EA.UsageTracking.Subscriber.API/bin/<< parameters.configuration >>/netcoreapp3.1/publish
             cf push
+  deploy-prod:
+    executor:
+      name: windows/default
+    steps:
+      - attach_workspace:
+          # Must be absolute path or relative path from working_directory
+          at: /tmp
+      - install_cmd:
+          org: "DOF-DSS"
+          space: "production"
+      - run: 
+          name: "Deploy API to GOV UK PaaS"
+          command: |
+            cd tmp/EA.UsageTracking.Application.API/bin/Production/netcoreapp3.1/publish
+            cf push
+            cf set-env ea-usage-tracking ASPNETCORE_ENVIRONMENT Production
+            cf restage ea-usage-tracking
+      - run: 
+          name: "Deploy Subscriber to GOV UK PaaS"
+          command: |
+            cd tmp/EA.UsageTracking.Subscriber.API/bin/Production/netcoreapp3.1/publish
+            cf push
 workflows:
   build-and-test-and-deploy-sandbox:
     jobs:
@@ -208,9 +230,7 @@ workflows:
               only: /^v(0|[0-9]\d*)\.(0|[0-9]\d*)\.(0|[0-9]\d*)(?:-(alpha|beta))?$/
             branches:
               ignore: /.*/
-      - deploy:
-          space: "production"
-          configuration: "Production"
+      - deploy-prod:
           requires:
             - hold
           filters:    # selected tags and no branches
