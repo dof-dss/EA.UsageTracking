@@ -49,10 +49,6 @@ namespace EA.UsageTracking.Application.API
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
         {
-            _logger.LogInformation("Issuer1: " + Environment.GetEnvironmentVariable("issuer"));
-            _logger.LogInformation("Issuer2: " + Configuration["issuer"]);
-            _logger.LogInformation("Issuer3: " + Configuration["VAR:issuer"]);
-
             services.AddControllers();
             services.AddMvc()
                 .AddRazorPagesOptions(options =>
@@ -157,7 +153,10 @@ namespace EA.UsageTracking.Application.API
 
         protected virtual void ConfigureAuthentication(IServiceCollection services)
         {
-            var issuer = Environment.GetEnvironmentVariable("issuer");
+           
+            var issuer = Configuration["issuer"];
+            _logger.LogInformation("Issuer: " + issuer);
+
             services.AddAuthentication(x =>
             {
                 x.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
