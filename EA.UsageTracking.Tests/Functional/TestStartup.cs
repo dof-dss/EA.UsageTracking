@@ -23,6 +23,7 @@ using Microsoft.Extensions.Caching.Distributed;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
+using Microsoft.Extensions.Logging;
 using Microsoft.IdentityModel.Tokens;
 using Moq;
 using StackExchange.Redis;
@@ -32,7 +33,7 @@ namespace EA.UsageTracking.Tests.Functional
 {
     public class TestStartup: Startup
     {
-        public TestStartup(IConfiguration configuration) : base(configuration)
+        public TestStartup(IConfiguration configuration, ILogger<Startup> logger) : base(configuration, logger)
         {
         }
 
