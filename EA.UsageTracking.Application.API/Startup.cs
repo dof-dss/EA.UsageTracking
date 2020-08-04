@@ -25,6 +25,7 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection.Extensions;
 using Microsoft.Extensions.Hosting;
+using Microsoft.Extensions.Logging;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
 using StackExchange.Redis;
@@ -35,9 +36,12 @@ namespace EA.UsageTracking.Application.API
 {
     public class Startup
     {
-        public Startup(IConfiguration configuration)
+        private ILogger<Startup> _logger;
+
+        public Startup(IConfiguration configuration, ILogger<Startup> logger)
         {
             Configuration = configuration;
+            _logger = logger;
         }
 
         public IConfiguration Configuration { get; }
@@ -45,6 +49,10 @@ namespace EA.UsageTracking.Application.API
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
         {
+            _logger.LogInformation("Issuer1: " + Environment.GetEnvironmentVariable("issuer"));
+            _logger.LogInformation("Issuer2: " + Configuration["issuer"]);
+            _logger.LogInformation("Issuer3: " + Configuration["VAR:issuer"]);
+
             services.AddControllers();
             services.AddMvc()
                 .AddRazorPagesOptions(options =>
