@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using System.Reflection;
 using System.Text;
@@ -148,7 +149,7 @@ namespace EA.UsageTracking.Application.API
 
         protected virtual void ConfigureAuthentication(IServiceCollection services)
         {
-            var issuer = Configuration["issuer"];
+            var issuer = Environment.GetEnvironmentVariable("issuer");
             services.AddAuthentication(x =>
             {
                 x.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
